@@ -43,13 +43,20 @@ const CITY_COORDINATES = {
   munnar: [10.0889, 77.0595],
   alleppey: [9.4981, 76.3388],
   alappuzha: [9.4981, 76.3388],
+  aluva: [10.1076, 76.3516],
+  kumarakom: [9.6175, 76.4301],
   wayanad: [11.6854, 76.1320],
   ooty: [11.4102, 76.6950],
   mysore: [12.2958, 76.6394],
   mysuru: [12.2958, 76.6394],
+  kushalnagar: [12.4556, 75.9622],
+  madikeri: [12.4244, 75.7382],
   coorg: [12.3375, 75.8069],
   madurai: [9.9252, 78.1198],
   guwahati: [26.1445, 91.7362],
+  nongpoh: [25.9034, 91.8803],
+  umiam: [25.6669, 91.9056],
+  'umiam lake': [25.6669, 91.9056],
   shillong: [25.5788, 91.8933],
   gangtok: [27.3314, 88.6138],
   darjeeling: [27.0410, 88.2663],
@@ -61,10 +68,89 @@ const CITY_COORDINATES = {
   alwar: [27.5530, 76.6346],
   gurugram: [28.4595, 77.0266],
   noida: [28.5355, 77.3910],
-  chittorgarh: [24.8887, 74.6269]
+  chittorgarh: [24.8887, 74.6269],
+  aravalli: [24.7892, 73.6841]
 };
 
-function resolveCoords(cityName, fallback = [28.6139, 77.2090]) {
+// Global in-memory cache for geocoded coordinates
+const memoryGeoCache = new Map();
+
+/**
+ * Dynamic Geocoding via OpenStreetMap Nominatim API.
+ * 1. Checks in-memory cache
+ * 2. Checks browser localStorage cache
+ * 3. Checks built-in static dictionary
+ * 4. Queries OpenStreetMap Nominatim API dynamically for any city/town/village
+ * 5. Caches result for instant zero-latency subsequent lookups
+ */
+async function geocodePlace(placeName, fallback = [28.6139, 77.2090]) {
+  if (!placeName || typeof placeName !== 'string') return fallback;
+  
+  // Clean query: remove parentheticals like "Madikeri (Coorg)" -> "Madikeri Coorg"
+  const clean = placeName.replace(/[\(\)]/g, ' ').replace(/\s+/g, ' ').trim();
+  const cacheKey = clean.toLowerCase();
+
+  // 1. In-memory cache hit
+  if (memoryGeoCache.has(cacheKey)) {
+    return memoryGeoCache.get(cacheKey);
+  }
+
+  // 2. LocalStorage cache hit
+  try {
+    const saved = localStorage.getItem(`geo_${cacheKey}`);
+    if (saved) {
+      const parsed = JSON.parse(saved);
+      if (Array.isArray(parsed) && parsed.length === 2) {
+        memoryGeoCache.set(cacheKey, parsed);
+        return parsed;
+      }
+    }
+  } catch (e) {
+    // Ignore localStorage errors (e.g. incognito mode quota)
+  }
+
+  // 3. Fast check against built-in dictionary
+  const staticMatch = resolveStaticCoords(clean, null);
+  if (staticMatch) {
+    memoryGeoCache.set(cacheKey, staticMatch);
+    return staticMatch;
+  }
+
+  // 4. Dynamic query to OpenStreetMap Nominatim
+  try {
+    const url = `https://nominatim.openstreetmap.org/search?format=json&limit=1&countrycodes=in&q=${encodeURIComponent(clean)}`;
+    const controller = new AbortController();
+    const timeout = setTimeout(() => controller.abort(), 3500);
+
+    const res = await fetch(url, {
+      signal: controller.signal,
+      headers: {
+        'Accept': 'application/json',
+      }
+    });
+    clearTimeout(timeout);
+
+    if (res.ok) {
+      const data = await res.json();
+      if (Array.isArray(data) && data.length > 0 && data[0].lat && data[0].lon) {
+        const coords = [parseFloat(data[0].lat), parseFloat(data[0].lon)];
+        memoryGeoCache.set(cacheKey, coords);
+        try {
+          localStorage.setItem(`geo_${cacheKey}`, JSON.stringify(coords));
+        } catch (e) {}
+        console.log(`📍 Dynamic Geocode resolved: "${placeName}" -> [${coords[0]}, ${coords[1]}]`);
+        return coords;
+      }
+    }
+  } catch (err) {
+    console.warn(`Dynamic geocoding for "${placeName}" encountered: ${err.message}`);
+  }
+
+  // 5. Final fallback
+  return resolveStaticCoords(clean, fallback);
+}
+
+function resolveStaticCoords(cityName, fallback = [28.6139, 77.2090]) {
   if (!cityName || typeof cityName !== 'string') return fallback;
   const clean = cityName.toLowerCase().trim().replace(/[^a-z0-9\s]/g, '');
   
@@ -116,121 +202,234 @@ export default function RouteMap({
 
   useEffect(() => {
     if (!mapContainerRef.current) return;
+    let isCancelled = false;
 
-    const originCoords = resolveCoords(cleanOrigin, [28.6139, 77.2090]);
-    const destCoords = resolveCoords(cleanDest, [32.2396, 77.1887]);
+    async function initMap() {
+      // 1. Dynamically geocode origin, destination, and corridor intermediate waypoints
+      const originCoords = await geocodePlace(cleanOrigin, [28.6139, 77.2090]);
+      const destCoords = await geocodePlace(cleanDest, [32.2396, 77.1887]);
 
-    // Cleanup previous map if any
-    if (mapInstanceRef.current) {
-      mapInstanceRef.current.remove();
-      mapInstanceRef.current = null;
-    }
+      // Resolve any intermediate corridor waypoints dynamically
+      let resolvedWaypoints = [];
+      if (corridorNodes && corridorNodes.length > 2) {
+        const intermediate = corridorNodes.slice(1, -1);
+        resolvedWaypoints = await Promise.all(
+          intermediate.map(async (node) => {
+            const pt = await geocodePlace(node.label, null);
+            return { node, pt };
+          })
+        );
+      }
 
-    // Initialize Leaflet Map
-    const map = L.map(mapContainerRef.current, {
-      zoomControl: false,
-      attributionControl: false,
-      scrollWheelZoom: false
-    });
-    mapInstanceRef.current = map;
+      if (isCancelled || !mapContainerRef.current) return;
 
-    // Add standard OpenStreetMap tiles
-    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-      maxZoom: 18,
-      attribution: '&copy; OpenStreetMap contributors'
-    }).addTo(map);
+      // Cleanup previous map if any
+      if (mapInstanceRef.current) {
+        mapInstanceRef.current.remove();
+        mapInstanceRef.current = null;
+      }
 
-    // Zoom control in top right
-    L.control.zoom({ position: 'topright' }).addTo(map);
-
-    // Marker Icons
-    const createCustomIcon = (color, text, iconSvg) => {
-      return L.divIcon({
-        className: 'custom-leaflet-marker',
-        html: `
-          <div style="display: flex; flex-direction: column; align-items: center; pointer-events: none;">
-            <div style="background-color: ${color}; color: white; padding: 4px 8px; border-radius: 9999px; font-weight: 600; font-size: 11px; white-space: nowrap; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.2); border: 2px solid white; display: flex; align-items: center; gap: 4px;">
-              ${iconSvg || ''}
-              <span>${text}</span>
-            </div>
-            <div style="width: 0; height: 0; border-left: 6px solid transparent; border-right: 6px solid transparent; border-top: 6px solid ${color};"></div>
-          </div>
-        `,
-        iconSize: [80, 40],
-        iconAnchor: [40, 38]
+      // Initialize Leaflet Map
+      const map = L.map(mapContainerRef.current, {
+        zoomControl: false,
+        attributionControl: false,
+        scrollWheelZoom: false
       });
-    };
+      mapInstanceRef.current = map;
 
-    const originMarker = L.marker(originCoords, {
-      icon: createCustomIcon('#C26D38', cleanOrigin, '🛫')
-    }).addTo(map);
-    originMarker.bindPopup(`<b>Origin</b><br/>${cleanOrigin}`);
+      // Add standard OpenStreetMap tiles
+      L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+        maxZoom: 18,
+        attribution: '&copy; OpenStreetMap contributors'
+      }).addTo(map);
 
-    const destMarker = L.marker(destCoords, {
-      icon: createCustomIcon('#059669', cleanDest, '📍')
-    }).addTo(map);
-    destMarker.bindPopup(`<b>Destination</b><br/>${cleanDest}`);
+      // Zoom control in top right
+      L.control.zoom({ position: 'topright' }).addTo(map);
 
-    // Mode determination
-    const mode = selectedOption?.mode || 'road';
-    const isFlight = mode.includes('flight');
-    const isTrain = mode.includes('train');
-
-    let routeCoords = [];
-    let polylineOptions = {};
-
-    if (isFlight) {
-      // Arched air trajectory
-      routeCoords = getArchedPoints(originCoords, destCoords);
-      polylineOptions = {
-        color: '#0284C7',
-        weight: 4,
-        opacity: 0.85,
-        dashArray: '8, 8'
-      };
-    } else if (isTrain) {
-      // Rail Corridor - if intermediate nodes exist, pass through them
-      if (corridorNodes && corridorNodes.length > 2) {
-        routeCoords = [originCoords];
-        corridorNodes.slice(1, -1).forEach(node => {
-          routeCoords.push(resolveCoords(node.label, originCoords));
+      // Marker Icons
+      const createCustomIcon = (color, text, iconSvg) => {
+        return L.divIcon({
+          className: 'custom-leaflet-marker',
+          html: `
+            <div style="display: flex; flex-direction: column; align-items: center; pointer-events: none;">
+              <div style="background-color: ${color}; color: white; padding: 4px 8px; border-radius: 9999px; font-weight: 600; font-size: 11px; white-space: nowrap; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.2); border: 2px solid white; display: flex; align-items: center; gap: 4px;">
+                ${iconSvg || ''}
+                <span>${text}</span>
+              </div>
+              <div style="width: 0; height: 0; border-left: 6px solid transparent; border-right: 6px solid transparent; border-top: 6px solid ${color};"></div>
+            </div>
+          `,
+          iconSize: [80, 40],
+          iconAnchor: [40, 38]
         });
-        routeCoords.push(destCoords);
-      } else {
-        routeCoords = [originCoords, destCoords];
-      }
-      polylineOptions = {
-        color: '#D97706',
-        weight: 4,
-        opacity: 0.9,
-        dashArray: '12, 6'
       };
-    } else {
-      // Road / Highway (Bus or Cab)
-      if (corridorNodes && corridorNodes.length > 2) {
-        routeCoords = [originCoords];
-        corridorNodes.slice(1, -1).forEach(node => {
-          routeCoords.push(resolveCoords(node.label, originCoords));
+
+      const originMarker = L.marker(originCoords, {
+        icon: createCustomIcon('#C26D38', cleanOrigin, '🛫')
+      }).addTo(map);
+      originMarker.bindPopup(`<b>Origin</b><br/>${cleanOrigin}`);
+
+      const destMarker = L.marker(destCoords, {
+        icon: createCustomIcon('#059669', cleanDest, '📍')
+      }).addTo(map);
+      destMarker.bindPopup(`<b>Destination</b><br/>${cleanDest}`);
+
+      // Mode determination
+      const mode = (selectedOption?.mode || '').toLowerCase();
+      const isFlight = mode.includes('flight') || selectedOption?.operator?.toLowerCase().includes('air') || selectedOption?.operator?.toLowerCase().includes('flight');
+      const isTrain = mode.includes('train') || selectedOption?.operator?.toLowerCase().includes('railways') || selectedOption?.operator?.toLowerCase().includes('express') || selectedOption?.operator?.toLowerCase().includes('shatabdi') || selectedOption?.operator?.toLowerCase().includes('vande');
+
+      let routeCoords = [];
+
+      if (isFlight) {
+        // 1. FLIGHT: Beautiful Geodesic Arched Sky Route with Halo
+        routeCoords = getArchedPoints(originCoords, destCoords);
+
+        // Soft atmospheric halo
+        L.polyline(routeCoords, {
+          color: '#38BDF8',
+          weight: 7,
+          opacity: 0.3,
+          lineCap: 'round',
+        }).addTo(map);
+
+        // Primary flight dashed trajectory
+        L.polyline(routeCoords, {
+          color: '#0284C7',
+          weight: 3.5,
+          opacity: 0.95,
+          dashArray: '8, 8',
+          lineCap: 'round',
+        }).addTo(map);
+
+        // Add a midpoint airplane marker along the arc
+        const midIndex = Math.floor(routeCoords.length / 2);
+        const midPoint = routeCoords[midIndex];
+        const planeIcon = L.divIcon({
+          className: 'plane-flight-marker',
+          html: `
+            <div style="background: #0284C7; color: white; width: 26px; height: 26px; border-radius: 9999px; display: flex; align-items: center; justify-content: center; box-shadow: 0 4px 10px rgba(2, 132, 199, 0.4); border: 2px solid white; font-size: 13px;">
+              ✈️
+            </div>
+          `,
+          iconSize: [26, 26],
+          iconAnchor: [13, 13],
         });
+        L.marker(midPoint, { icon: planeIcon }).addTo(map).bindPopup(`<b>Air Corridor</b>: Direct Flight Path`);
+
+      } else if (isTrain) {
+        // 2. RAILWAY TRACK: Multi-layered authentic train track representation with railroad ties
+        routeCoords = [originCoords];
+        resolvedWaypoints.forEach(({ pt }) => {
+          if (pt && (pt[0] !== originCoords[0] || pt[1] !== originCoords[1]) && (pt[0] !== destCoords[0] || pt[1] !== destCoords[1])) {
+            routeCoords.push(pt);
+          }
+        });
+        if (routeCoords.length === 1) {
+          // Natural curve midpoint if no waypoints
+          const midLat = (originCoords[0] + destCoords[0]) / 2;
+          const midLng = (originCoords[1] + destCoords[1]) / 2 + 0.08;
+          routeCoords.push([midLat, midLng]);
+        }
         routeCoords.push(destCoords);
+
+        // Track Base (Steel Rail foundation)
+        L.polyline(routeCoords, {
+          color: '#1E293B',
+          weight: 6,
+          opacity: 0.9,
+        }).addTo(map);
+
+        // Railroad Sleeper Ties (Intermittent high-contrast dashes)
+        L.polyline(routeCoords, {
+          color: '#F8FAFC',
+          weight: 4,
+          opacity: 0.95,
+          dashArray: '5, 10',
+        }).addTo(map);
+
+        // Center High-Speed Rail Glow
+        L.polyline(routeCoords, {
+          color: '#D97706',
+          weight: 2,
+          opacity: 0.9,
+        }).addTo(map);
+
+        // Midpoint train station icon
+        const midIndex = Math.floor(routeCoords.length / 2);
+        const midPoint = routeCoords[midIndex];
+        const trainIcon = L.divIcon({
+          className: 'train-track-marker',
+          html: `
+            <div style="background: #D97706; color: white; width: 26px; height: 26px; border-radius: 9999px; display: flex; align-items: center; justify-content: center; box-shadow: 0 4px 10px rgba(217, 119, 6, 0.4); border: 2px solid white; font-size: 13px;">
+              🚆
+            </div>
+          `,
+          iconSize: [26, 26],
+          iconAnchor: [13, 13],
+        });
+        L.marker(midPoint, { icon: trainIcon }).addTo(map).bindPopup(`<b>Railway Corridor</b>: Dedicated Indian Railways Track`);
+
       } else {
-        routeCoords = [originCoords, destCoords];
+        // 3. ROAD / HIGHWAY: Authentic road geometry (solid highway ribbon with center lane dash)
+        let roadPath = [originCoords];
+        resolvedWaypoints.forEach(({ pt }) => {
+          if (pt && (pt[0] !== originCoords[0] || pt[1] !== originCoords[1]) && (pt[0] !== destCoords[0] || pt[1] !== destCoords[1])) {
+            roadPath.push(pt);
+          }
+        });
+        if (roadPath.length === 1) {
+          // Natural highway curve through real geography
+          const midLat = (originCoords[0] + destCoords[0]) / 2 - 0.05;
+          const midLng = (originCoords[1] + destCoords[1]) / 2 - 0.04;
+          roadPath.push([midLat, midLng]);
+        }
+        roadPath.push(destCoords);
+
+        // Outer Highway Asphalt Bed
+        L.polyline(roadPath, {
+          color: '#065F46',
+          weight: 7,
+          opacity: 0.85,
+          lineCap: 'round',
+          lineJoin: 'round',
+        }).addTo(map);
+
+        // Inner Highway Road Surface
+        L.polyline(roadPath, {
+          color: '#10B981',
+          weight: 4,
+          opacity: 1.0,
+        }).addTo(map);
+
+        // Center Lane Road Dashes
+        L.polyline(roadPath, {
+          color: '#FFFFFF',
+          weight: 1.5,
+          opacity: 0.9,
+          dashArray: '6, 8',
+        }).addTo(map);
+
+        // Midpoint vehicle badge
+        const midIndex = Math.floor(roadPath.length / 2);
+        const midPoint = roadPath[midIndex];
+        const roadIcon = L.divIcon({
+          className: 'road-highway-marker',
+          html: `
+            <div style="background: #059669; color: white; width: 26px; height: 26px; border-radius: 9999px; display: flex; align-items: center; justify-content: center; box-shadow: 0 4px 10px rgba(5, 150, 105, 0.4); border: 2px solid white; font-size: 13px;">
+              ${mode.includes('bus') ? '🚌' : '🚗'}
+            </div>
+          `,
+          iconSize: [26, 26],
+          iconAnchor: [13, 13],
+        });
+        L.marker(midPoint, { icon: roadIcon }).addTo(map).bindPopup(`<b>National Highway Corridor</b>: Road & Bus Transit`);
       }
-      polylineOptions = {
-        color: '#059669',
-        weight: 4,
-        opacity: 0.9
-      };
-    }
 
-    L.polyline(routeCoords, polylineOptions).addTo(map);
-
-    // Intermediate waypoint markers if available
-    if (corridorNodes && corridorNodes.length > 2) {
-      corridorNodes.slice(1, -1).forEach(node => {
-        const coords = resolveCoords(node.label, null);
-        if (coords) {
-          L.circleMarker(coords, {
+      // Intermediate waypoint markers if available
+      resolvedWaypoints.forEach(({ node, pt }) => {
+        if (pt) {
+          L.circleMarker(pt, {
             radius: 5,
             fillColor: '#475569',
             color: '#ffffff',
@@ -240,18 +439,24 @@ export default function RouteMap({
           }).addTo(map).bindPopup(`<b>Waypoint</b>: ${node.label} (${node.alt || 'Transit'})`);
         }
       });
+
+      // Fit map to show all relevant route coordinates nicely with padding
+      const allPoints = [originCoords, destCoords, ...resolvedWaypoints.map(w => w.pt).filter(Boolean)];
+      const bounds = L.latLngBounds(allPoints);
+      map.fitBounds(bounds, { padding: [50, 50], maxZoom: 10 });
+
+      // Trigger map resize after render to avoid tile blanking
+      setTimeout(() => {
+        if (!isCancelled && mapInstanceRef.current) {
+          mapInstanceRef.current.invalidateSize();
+        }
+      }, 250);
     }
 
-    // Fit map to show both markers nicely with padding
-    const bounds = L.latLngBounds([originCoords, destCoords]);
-    map.fitBounds(bounds, { padding: [50, 50], maxZoom: 10 });
-
-    // Trigger map resize after render to avoid tile blanking
-    setTimeout(() => {
-      map.invalidateSize();
-    }, 200);
+    initMap();
 
     return () => {
+      isCancelled = true;
       if (mapInstanceRef.current) {
         mapInstanceRef.current.remove();
         mapInstanceRef.current = null;

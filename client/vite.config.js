@@ -8,8 +8,9 @@ export default defineConfig({
     port: 5173,
     proxy: {
       '/api': {
-        target: 'http://localhost:3001',
+        target: process.env.VITE_API_BASE_URL ? process.env.VITE_API_BASE_URL.replace(/\/api\/?$/, '') : 'https://sih-project-4sno.onrender.com',
         changeOrigin: true,
+        secure: false,
       },
     },
   },

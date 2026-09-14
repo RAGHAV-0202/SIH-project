@@ -1,4 +1,14 @@
-const API_BASE = '/api';
+const API_BASE = (import.meta.env.VITE_API_BASE_URL || 'https://sih-project-4sno.onrender.com/api').replace(/\/+$/, '');
+
+export async function checkServerHealth() {
+  try {
+    const res = await fetch(`${API_BASE}/health`);
+    if (!res.ok) return { status: 'degraded', code: res.status };
+    return await res.json();
+  } catch (err) {
+    return { status: 'offline', error: err.message };
+  }
+}
 
 export async function registerUser(email, password) {
   const res = await fetch(`${API_BASE}/auth/register`, {

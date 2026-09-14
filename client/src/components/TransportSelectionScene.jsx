@@ -10,7 +10,9 @@ import {
   Zap,
   MapPin,
   Navigation,
-  Compass
+  Compass,
+  X,
+  Check
 } from 'lucide-react';
 import RouteMap from './RouteMap';
 
@@ -365,6 +367,27 @@ export default function TransportSelectionScene({
     C: { id: 'T-OPT-C', mode: 'private-cab', operator: `Private Chauffeur Cab to ${destination || 'Destination'}`, departure: '06:30', arrival: '14:30', duration_hours: 8, price_inr: 4200, class: 'Private' },
   };
 
+  // Helper to format operator/route strings cleanly for the effective corridor
+  const cleanOptionText = (opt) => {
+    if (!opt) return opt;
+    let operator = opt.operator || '';
+    let notes = opt.notes || '';
+    let route_display = opt.route_display || '';
+
+    // If operator has (Delhi → Destination) but corridor origin is Bangalore / Mumbai etc.
+    if (effectiveOrigin && effectiveOrigin.toLowerCase() !== 'delhi') {
+      operator = operator.replace(/Delhi\s*(?:→|->|to)\s*/gi, `${effectiveOrigin} → `);
+      notes = notes.replace(/Delhi\s*(?:→|->|to)\s*/gi, `${effectiveOrigin} → `);
+      route_display = route_display.replace(/Delhi\s*(?:→|->|to)\s*/gi, `${effectiveOrigin} → `);
+    }
+    return {
+      ...opt,
+      operator,
+      notes,
+      route_display: route_display || `${effectiveOrigin} → ${effectiveDestination}`
+    };
+  };
+
   // Group and prioritize options passed from backend
   const available = Array.isArray(options) ? [...options] : [];
 
@@ -376,24 +399,41 @@ export default function TransportSelectionScene({
 
   const busOpt = available.find(o =>
     o !== flightOpt &&
-    (o.mode === 'bus' || o.operator?.toLowerCase().includes('bus') || o.operator?.toLowerCase().includes('volvo') || o.operator?.toLowerCase().includes('coach') || o.operator?.toLowerCase().includes('ksrtc') || o.operator?.toLowerCase().includes('hrtc') || o.operator?.toLowerCase().includes('rsrtc') || o.operator?.toLowerCase().includes('utc') || o.operator?.toLowerCase().includes('zingbus') || o.operator?.toLowerCase().includes('express'))
+    (o.mode === 'bus' || o.operator?.toLowerCase().includes('bus') || o.operator?.toLowerCase().includes('volvo') || o.operator?.toLowerCase().includes('coach') || o.operator?.toLowerCase().includes('ksrtc') || o.operator?.toLowerCase().includes('hrtc') || o.operator?.toLowerCase().includes('rsrtc') || o.operator?.toLowerCase().includes('utc') || o.operator?.toLowerCase().includes('zingbus'))
   );
 
-  const trainOrCabOpt = available.find(o =>
+  const trainOpt = available.find(o =>
     o !== flightOpt && o !== busOpt &&
-    (o.mode?.includes('train') || o.mode?.includes('cab') || o.mode?.includes('suv') || o.mode?.includes('taxi') || o.operator?.toLowerCase().includes('express') || o.operator?.toLowerCase().includes('shatabdi') || o.operator?.toLowerCase().includes('rajdhani') || o.operator?.toLowerCase().includes('taxi') || o.operator?.toLowerCase().includes('sedan') || o.mode === 'self-drive')
+    (o.mode === 'train' || o.mode?.includes('train') || o.operator?.toLowerCase().includes('railways') || o.operator?.toLowerCase().includes('shatabdi') || o.operator?.toLowerCase().includes('vande') || o.operator?.toLowerCase().includes('express') || o.operator?.toLowerCase().includes('rajdhani'))
+  );
+
+  const cabOpt = available.find(o =>
+    o !== flightOpt && o !== busOpt && o !== trainOpt &&
+    (o.mode?.includes('cab') || o.mode?.includes('suv') || o.mode?.includes('taxi') || o.operator?.toLowerCase().includes('taxi') || o.operator?.toLowerCase().includes('sedan') || o.mode === 'self-drive')
   );
 
   // Pool of remaining backend options not yet selected
-  const used = new Set([flightOpt, busOpt, trainOrCabOpt].filter(Boolean));
+  const used = new Set([flightOpt, busOpt, trainOpt, cabOpt].filter(Boolean));
   const remaining = available.filter(o => !used.has(o));
 
   // Build slot 1 (Recommended / Fastest): flight first, or fastest backend option, or first backend option, or defs.A
-  const rawA = flightOpt || remaining.shift() || available[0] || defs.A;
-  // Build slot 2 (Best Value / Ground): bus first, or next backend option, or defs.B
-  const rawB = busOpt || remaining.shift() || available.find(o => o !== rawA) || defs.B;
-  // Build slot 3 (Scenic / Flexible / Cab): cab/train first, or next backend option, or defs.C
-  const rawC = trainOrCabOpt || remaining.shift() || available.find(o => o !== rawA && o !== rawB) || defs.C;
+  const rawA = cleanOptionText(flightOpt || remaining.shift() || available[0] || defs.A);
+
+  // Build slot 2 (Best Value / Ground): strictly bus first; if no backend bus, use corridor default bus (defs.B)
+  let candidateB = busOpt || remaining.shift() || available.find(o => o.id !== rawA.id && o.mode === 'bus') || defs.B;
+  // Guard against duplicate ID or identical operator
+  if (candidateB.id === rawA.id || candidateB.operator === rawA.operator) {
+    candidateB = defs.B;
+  }
+  const rawB = cleanOptionText(candidateB);
+
+  // Build slot 3 (Train / Rail / Scenic): prioritize train if available, else cab, else defs.C
+  let candidateC = trainOpt || cabOpt || remaining.shift() || available.find(o => o.id !== rawA.id && o.id !== rawB.id) || defs.C;
+  // Guard against duplicate ID or duplicate operator with Slot 1 or Slot 2
+  if (candidateC.id === rawA.id || candidateC.id === rawB.id || candidateC.operator === rawA.operator || candidateC.operator === rawB.operator) {
+    candidateC = defs.C;
+  }
+  const rawC = cleanOptionText(candidateC);
 
   const optionA = {
     id: rawA?.id || defs.A.id,
@@ -407,9 +447,9 @@ export default function TransportSelectionScene({
     waitlist_status: rawA?.waitlist_status || 'confirmed',
     live_verified: rawA?.live_verified || false,
     source: rawA?.source || null,
-    origin_city: rawA?.origin_city || null,
-    destination_city: rawA?.destination_city || null,
-    route_display: rawA?.route_display || null,
+    origin_city: effectiveOrigin,
+    destination_city: effectiveDestination,
+    route_display: rawA?.route_display || `${effectiveOrigin} → ${effectiveDestination}`,
     archetype: 'recommended',
     badge: 'Recommended',
     notes: rawA?.notes || corridor.optionNotes?.A || `Fastest verified route to ${destination || 'destination'}.`,
@@ -427,13 +467,15 @@ export default function TransportSelectionScene({
     waitlist_status: rawB?.waitlist_status || 'confirmed',
     live_verified: rawB?.live_verified || false,
     source: rawB?.source || null,
-    origin_city: rawB?.origin_city || null,
-    destination_city: rawB?.destination_city || null,
-    route_display: rawB?.route_display || null,
+    origin_city: effectiveOrigin,
+    destination_city: effectiveDestination,
+    route_display: rawB?.route_display || `${effectiveOrigin} → ${effectiveDestination}`,
     archetype: 'budget',
     badge: 'Best value',
     notes: rawB?.notes || corridor.optionNotes?.B || `Comfortable and economical connection to ${destination || 'destination'}.`,
   };
+
+  const isTrainOptionC = (rawC?.mode === 'train' || rawC?.operator?.toLowerCase().includes('railways') || rawC?.operator?.toLowerCase().includes('express') || rawC?.operator?.toLowerCase().includes('shatabdi'));
 
   const optionC = {
     id: rawC?.id || defs.C.id,
@@ -447,20 +489,22 @@ export default function TransportSelectionScene({
     waitlist_status: rawC?.waitlist_status || 'confirmed',
     live_verified: rawC?.live_verified || false,
     source: rawC?.source || null,
-    origin_city: rawC?.origin_city || null,
-    destination_city: rawC?.destination_city || null,
-    route_display: rawC?.route_display || null,
-    archetype: 'scenic',
-    badge: null,
-    notes: rawC?.notes || corridor.optionNotes?.C || `Direct private cab or scenic transit to ${destination || 'destination'}.`,
+    origin_city: effectiveOrigin,
+    destination_city: effectiveDestination,
+    route_display: rawC?.route_display || `${effectiveOrigin} → ${effectiveDestination}`,
+    archetype: isTrainOptionC ? 'rail' : 'scenic',
+    badge: isTrainOptionC ? 'Rail Express' : 'Scenic Route',
+    notes: rawC?.notes || corridor.optionNotes?.C || `Direct rail or highway connection to ${destination || 'destination'}.`,
   };
 
   const comparativeCards = [optionA, optionB, optionC];
 
   const [selectedOption, setSelectedOption] = useState(optionA);
-  const [hoveredCard, setHoveredCard] = useState(optionA);
+  const [hoveredCard, setHoveredCard] = useState(null);
+  const [showAllModal, setShowAllModal] = useState(false);
   const [isStayDrawerOpen, setIsStayDrawerOpen] = useState(false);
-  const activeCost = (hoveredCard || selectedOption).price_inr * people;
+  const activeOption = hoveredCard || selectedOption;
+  const activeCost = activeOption.price_inr * people;
   const remainingBudget = Math.max(0, budget - activeCost);
   const percentUsed = Math.min(100, Math.round((activeCost / budget) * 100));
 
@@ -539,9 +583,21 @@ export default function TransportSelectionScene({
             </p>
           </div>
 
-          {onSkip && (
-            <div className="pt-4 mt-4 border-t border-slate-100 flex items-center justify-between">
-              <span className="text-xs text-slate-500">Want the AI's top pick immediately?</span>
+          <div className="pt-4 mt-4 border-t border-slate-100 flex flex-wrap items-center justify-between gap-2">
+            <div className="flex items-center gap-3">
+              {available.length > 0 && (
+                <button
+                  type="button"
+                  onClick={() => setShowAllModal(true)}
+                  className="text-xs font-semibold px-3 py-1.5 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-700 transition flex items-center gap-1.5 cursor-pointer"
+                >
+                  <span className="text-[#DA7756]">✦</span>
+                  <span>View all recommendations ({available.length} options)</span>
+                </button>
+              )}
+            </div>
+
+            {onSkip && (
               <button
                 type="button"
                 onClick={onSkip}
@@ -549,8 +605,8 @@ export default function TransportSelectionScene({
               >
                 Use recommended route →
               </button>
-            </div>
-          )}
+            )}
+          </div>
         </div>
 
         {/* Card 1B: Budget KPI Widget with Sparkline (5 cols - like reference design) */}
@@ -608,6 +664,7 @@ export default function TransportSelectionScene({
       {/* ─── BENTO ROW 2: Three Visual Transit Cards with Photography ─── */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
         {comparativeCards.map((card, idx) => {
+          const isSelected = selectedOption?.id === card.id;
           const isRecommended = card.archetype === 'recommended';
           const isBudget = card.archetype === 'budget';
           const cardImg = getTransitImage(card);
@@ -615,10 +672,12 @@ export default function TransportSelectionScene({
           return (
             <div
               key={card.id}
+              onClick={() => setSelectedOption(card)}
               onMouseEnter={() => setHoveredCard(card)}
-              className={`bg-white rounded-3xl border transition-all duration-300 flex flex-col justify-between overflow-hidden group relative shadow-sm hover:shadow-xl hover:-translate-y-1 ${
-                isRecommended
-                  ? 'border-[#DA7756] ring-2 ring-[#DA7756]/20'
+              onMouseLeave={() => setHoveredCard(null)}
+              className={`bg-white rounded-3xl border transition-all duration-300 flex flex-col justify-between overflow-hidden group relative shadow-sm hover:shadow-xl hover:-translate-y-1 cursor-pointer ${
+                isSelected
+                  ? 'border-[#DA7756] ring-2 ring-[#DA7756]/30 shadow-md'
                   : 'border-slate-200/80 hover:border-slate-300'
               }`}
             >
@@ -852,6 +911,141 @@ export default function TransportSelectionScene({
           </div>
         </div>
       </div>
+
+      {/* ─── MODAL: View All Recommendations ─── */}
+      {showAllModal && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm animate-fadeIn">
+          <div className="bg-white rounded-3xl max-w-3xl w-full max-h-[85vh] flex flex-col shadow-2xl border border-slate-200 overflow-hidden">
+            {/* Modal Header */}
+            <div className="p-6 border-b border-slate-100 flex items-center justify-between">
+              <div>
+                <h3 className="text-xl font-bold text-slate-900 flex items-center gap-2">
+                  <span>All Synthesized Transit Options</span>
+                  <span className="px-2.5 py-0.5 rounded-full text-xs font-semibold bg-orange-50 text-[#DA7756]">
+                    {available.length} routes found
+                  </span>
+                </h3>
+                <p className="text-xs text-slate-500 mt-1">
+                  Live IRCTC trains, scheduled flights, and state/private coaches for {effectiveOrigin} → {effectiveDestination}.
+                </p>
+              </div>
+              <button
+                type="button"
+                onClick={() => setShowAllModal(false)}
+                className="w-9 h-9 rounded-full bg-slate-100 hover:bg-slate-200 text-slate-600 flex items-center justify-center transition cursor-pointer"
+              >
+                <X className="w-5 h-5" />
+              </button>
+            </div>
+
+            {/* Modal List */}
+            <div className="p-6 overflow-y-auto space-y-3 divide-y divide-slate-100">
+              {available.map((opt, i) => {
+                const isSelected = selectedOption?.id === opt.id;
+                const isFlight = opt.mode?.includes('flight') || opt.operator?.toLowerCase().includes('air');
+                const isTrain = opt.mode?.includes('train') || opt.operator?.toLowerCase().includes('railways') || opt.operator?.toLowerCase().includes('express');
+                const isBus = opt.mode === 'bus' || opt.operator?.toLowerCase().includes('volvo') || opt.operator?.toLowerCase().includes('coach');
+
+                return (
+                  <div
+                    key={opt.id || i}
+                    className={`pt-3 first:pt-0 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 p-4 rounded-2xl transition border ${
+                      isSelected
+                        ? 'bg-orange-50/50 border-[#DA7756] ring-1 ring-[#DA7756]'
+                        : 'hover:bg-slate-50 border-transparent'
+                    }`}
+                  >
+                    <div className="flex items-start gap-3.5">
+                      <div className={`w-10 h-10 rounded-xl flex items-center justify-center shrink-0 ${
+                        isFlight
+                          ? 'bg-sky-50 text-sky-600'
+                          : isTrain
+                          ? 'bg-amber-50 text-amber-600'
+                          : isBus
+                          ? 'bg-emerald-50 text-emerald-600'
+                          : 'bg-indigo-50 text-indigo-600'
+                      }`}>
+                        {isFlight ? (
+                          <Plane className="w-5 h-5" />
+                        ) : isTrain ? (
+                          <Train className="w-5 h-5" />
+                        ) : isBus ? (
+                          <Bus className="w-5 h-5" />
+                        ) : (
+                          <Car className="w-5 h-5" />
+                        )}
+                      </div>
+
+                      <div>
+                        <div className="flex items-center gap-2 flex-wrap">
+                          <h4 className="text-sm font-bold text-slate-900">{opt.operator}</h4>
+                          <span className="px-2 py-0.5 rounded text-[10px] font-semibold uppercase bg-slate-100 text-slate-600">
+                            {opt.mode}
+                          </span>
+                          {opt.live_verified && (
+                            <span className="px-2 py-0.5 rounded text-[10px] font-semibold bg-emerald-50 text-emerald-700 border border-emerald-200">
+                              ✓ Live API
+                            </span>
+                          )}
+                        </div>
+
+                        <div className="text-xs text-slate-500 mt-1 flex items-center gap-3 font-mono">
+                          <span>🕒 {opt.departure} → {opt.arrival}</span>
+                          <span>⚡ {opt.duration_hours}h</span>
+                          <span>💺 {opt.class || 'Confirmed'}</span>
+                        </div>
+                      </div>
+                    </div>
+
+                    <div className="flex items-center gap-3 self-end sm:self-center shrink-0">
+                      <div className="text-right">
+                        <span className="text-[10px] text-slate-400 block uppercase">Price</span>
+                        <span className="text-base font-extrabold text-slate-900 font-mono">
+                          ₹{opt.price_inr?.toLocaleString('en-IN')}
+                        </span>
+                      </div>
+
+                      <button
+                        type="button"
+                        onClick={() => {
+                          setSelectedOption(opt);
+                          setShowAllModal(false);
+                        }}
+                        className={`px-4 py-2 rounded-xl text-xs font-bold transition flex items-center gap-1.5 cursor-pointer ${
+                          isSelected
+                            ? 'bg-emerald-600 text-white'
+                            : 'bg-slate-900 hover:bg-[#DA7756] text-white'
+                        }`}
+                      >
+                        {isSelected ? (
+                          <>
+                            <Check className="w-3.5 h-3.5" />
+                            <span>Selected</span>
+                          </>
+                        ) : (
+                          <span>Select Route</span>
+                        )}
+                      </button>
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+
+            {/* Modal Footer */}
+            <div className="p-4 bg-slate-50 border-t border-slate-100 flex items-center justify-between text-xs text-slate-500">
+              <span>Clicking 'Select Route' instantly updates the route map & calculation.</span>
+              <button
+                type="button"
+                onClick={() => setShowAllModal(false)}
+                className="px-4 py-1.5 rounded-lg bg-white border border-slate-200 hover:bg-slate-100 font-semibold text-slate-700 cursor-pointer"
+              >
+                Close
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
 
     </div>
   );

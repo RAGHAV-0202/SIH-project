@@ -1,0 +1,238 @@
+@import "tailwindcss";
+
+:root {
+  /* Alpine Editorial Daylight Palette */
+  --terracotta: #C26D38;
+  --terracotta-hover: #A85A2A;
+  --canvas-bg: #FAF8FF;
+  --card-bg: #FFFFFF;
+  --slate-heading: #0F172A;
+  --slate-body: #334155;
+  --slate-muted: #64748B;
+  --forest-emerald: #059669;
+  --warm-amber: #D97706;
+  --blocked-rose: #E11D48;
+
+  /* Backward compatibility tokens */
+  --ink: #0F172A;
+  --paper: #FAF8FF;
+  --route: #C26D38;
+  --marigold: #D97706;
+  --sage: #059669;
+  --madder: #E11D48;
+}
+
+body {
+  background-color: #FAF8FF;
+  color: #0F172A;
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+  min-height: 100vh;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  line-height: 1.5;
+}
+
+/* ─── Typography Classes ────────────────────────────────────── */
+.font-display {
+  font-family: 'Outfit', -apple-system, BlinkMacSystemFont, sans-serif;
+}
+
+.font-serif {
+  font-family: 'Fraunces', Georgia, serif;
+}
+
+.font-body {
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+}
+
+.font-mono {
+  font-family: 'JetBrains Mono', ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+}
+
+/* ─── Browser Surfaces & Micro-details ──────────────────────── */
+::selection {
+  background: var(--route);
+  color: #ffffff;
+}
+
+input, textarea {
+  caret-color: var(--route);
+}
+
+a {
+  text-underline-offset: 3px;
+}
+
+/* ─── Buttons ───────────────────────────────────────────────── */
+.btn-route {
+  background-color: var(--route);
+  color: #ffffff;
+  font-family: 'Inter', sans-serif;
+  font-size: 14px;
+  font-weight: 500;
+  padding: 10px 22px;
+  border-radius: 6px;
+  border: 1px solid transparent;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  transition: opacity 0.15s ease, background-color 0.15s ease;
+}
+.btn-route:hover {
+  background-color: #212c50;
+}
+.btn-route:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.btn-secondary {
+  background-color: transparent;
+  color: var(--ink);
+  font-family: 'Inter', sans-serif;
+  font-size: 14px;
+  font-weight: 500;
+  padding: 9px 20px;
+  border-radius: 6px;
+  border: 1px solid var(--paper-border-strong);
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  transition: background-color 0.15s ease, border-color 0.15s ease;
+}
+.btn-secondary:hover {
+  background-color: var(--paper-card);
+  border-color: var(--ink);
+}
+
+/* ─── Reserved Marigold Local Pick Badge ────────────────────── */
+.badge-local-pick {
+  background-color: var(--marigold);
+  color: #16262A;
+  font-family: 'Inter', sans-serif;
+  font-size: 11px;
+  font-weight: 600;
+  padding: 2px 8px;
+  border-radius: 4px;
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  letter-spacing: 0.01em;
+}
+
+/* ─── Cards & Surfaces ──────────────────────────────────────── */
+.card-paper {
+  background-color: var(--paper-card);
+  border: 1px solid var(--paper-border);
+  border-radius: 8px;
+}
+
+.card-console {
+  background-color: var(--ink);
+  color: #EFEAE0;
+  border-radius: 8px;
+}
+
+/* ─── Accessible Focus Indicators ───────────────────────────── */
+:focus-visible:not(input):not(textarea):not(select) {
+  outline: 2px solid var(--route);
+  outline-offset: 2px;
+}
+
+input:focus-visible,
+textarea:focus-visible,
+select:focus-visible {
+  outline: none;
+}
+
+/* ─── Transport Scene Keyframes ─────────────────────────────── */
+@keyframes cloud-left {
+  0% { transform: translateX(-100%); }
+  25% { transform: translateX(0); }
+  75% { transform: translateX(0); }
+  100% { transform: translateX(-120%); }
+}
+
+@keyframes cloud-right {
+  0% { transform: translateX(100%); }
+  25% { transform: translateX(0); }
+  75% { transform: translateX(0); }
+  100% { transform: translateX(120%); }
+}
+
+@keyframes plane-pass {
+  0% { left: -15%; transform: translateY(-50%) rotate(4deg); }
+  100% { left: 115%; transform: translateY(-50%) rotate(4deg); }
+}
+
+@keyframes bus-pass {
+  0% { left: 5%; }
+  100% { left: 48%; }
+}
+
+@keyframes road-track {
+  0% { stroke-dashoffset: 100; }
+  100% { stroke-dashoffset: 0; }
+}
+
+.animate-cloud-left {
+  animation: cloud-left 2s ease-in-out forwards;
+}
+
+.animate-cloud-right {
+  animation: cloud-right 2s ease-in-out forwards;
+}
+
+.animate-plane-pass {
+  animation: plane-pass 1.6s ease-in-out 0.2s forwards;
+}
+
+.animate-bus-pass {
+  animation: bus-pass 1.1s cubic-bezier(0.25, 1, 0.5, 1) forwards;
+}
+
+.animate-road-track {
+  animation: road-track 0.9s ease-out forwards;
+}
+
+/* ─── Flight Deck Cockpit Utilities ─────────────────────────── */
+.scrollbar-none::-webkit-scrollbar {
+  display: none;
+}
+.scrollbar-none {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+
+@keyframes subtle-shake {
+  0%, 100% { transform: translateX(0); }
+  20%, 60% { transform: translateX(-4px) translateY(1px); }
+  40%, 80% { transform: translateX(4px) translateY(-1px); }
+}
+
+.animate-subtle-shake {
+  animation: subtle-shake 0.4s ease-in-out;
+}
+
+@keyframes target-pulse {
+  0%, 100% { box-shadow: 0 0 0 0 rgba(218, 119, 86, 0.5); }
+  50% { box-shadow: 0 0 0 10px rgba(218, 119, 86, 0); }
+}
+
+.animate-target-pulse {
+  animation: target-pulse 1.2s cubic-bezier(0, 0, 0.2, 1) 2;
+}
+
+/* ─── Reduced Motion ────────────────────────────────────────── */
+@media (prefers-reduced-motion: reduce) {
+  *, ::before, ::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}

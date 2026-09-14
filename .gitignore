@@ -1,0 +1,15 @@
+node_modules/
+.env
+.DS_Store
+dist/
+build/
+*.log
+
+.agent
+.agents
+.claude
+.cursor
+.gemini
+.impeccable
+.kiro
+.codex

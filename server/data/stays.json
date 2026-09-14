@@ -1,0 +1,867 @@
+{
+  "stays": [
+    {
+      "id": "S-SPT-001",
+      "name": "Tenzin's Mountain Homestay",
+      "destination": "Spiti Valley",
+      "location": "Kaza",
+      "type": "homestay",
+      "price_per_night_inr": 800,
+      "rating": 4.7,
+      "is_local_homestay": true,
+      "local_owner_name": "Tenzin Dorje",
+      "max_guests": 6,
+      "amenities": [
+        "home-cooked meals",
+        "mountain views",
+        "bonfire",
+        "local guide service",
+        "hot water"
+      ],
+      "description": "A warm Spitian homestay run by Tenzin and his family. Experience authentic Spitian food (thukpa, momos, chhang) and learn about Buddhist culture. The rooftop offers stunning views of the Kaza valley.",
+      "indoor_activities": [
+        "Traditional Spitian cooking class",
+        "Buddhist monastery visit",
+        "Local handicraft workshop",
+        "Yak wool weaving demonstration"
+      ],
+      "images": [
+        "https://images.unsplash.com/photo-1506197603052-3cc9c3a201bd?auto=format&fit=crop&w=800&q=80"
+      ],
+      "highlights": [
+        "Authentic local experience",
+        "Home-cooked Spitian meals",
+        "Cultural immersion"
+      ]
+    },
+    {
+      "id": "S-SPT-002",
+      "name": "Zostel Spiti",
+      "destination": "Spiti Valley",
+      "location": "Kaza",
+      "type": "hostel",
+      "price_per_night_inr": 600,
+      "rating": 4.3,
+      "is_local_homestay": false,
+      "local_owner_name": null,
+      "max_guests": 20,
+      "amenities": [
+        "common area",
+        "wifi",
+        "cafe",
+        "group activities",
+        "hot water"
+      ],
+      "description": "Popular backpacker hostel with a vibrant community vibe. Great for solo travelers looking to meet like-minded explorers.",
+      "indoor_activities": [
+        "Board games",
+        "Movie nights",
+        "Group discussions"
+      ],
+      "images": [
+        "https://images.unsplash.com/photo-1596394516093-501ba68a0ba6?auto=format&fit=crop&w=800&q=80"
+      ],
+      "highlights": [
+        "Budget-friendly",
+        "Social atmosphere",
+        "Central location"
+      ]
+    },
+    {
+      "id": "S-SPT-003",
+      "name": "Dekyid Guest House",
+      "destination": "Spiti Valley",
+      "location": "Kaza",
+      "type": "guesthouse",
+      "price_per_night_inr": 1500,
+      "rating": 4.5,
+      "is_local_homestay": true,
+      "local_owner_name": "Dekyid Angmo",
+      "max_guests": 8,
+      "amenities": [
+        "attached bathroom",
+        "room heater",
+        "garden",
+        "home-cooked meals",
+        "hot water",
+        "laundry"
+      ],
+      "description": "Family-run guesthouse with beautifully maintained rooms and a lovely garden. Dekyid Aunty's rajma-chawal and thukpa are legendary among travelers.",
+      "indoor_activities": [
+        "Traditional storytelling evenings",
+        "Spitian tea ceremony",
+        "Photography sessions"
+      ],
+      "images": [
+        "https://images.unsplash.com/photo-1571896349842-33c89424de2d?auto=format&fit=crop&w=800&q=80"
+      ],
+      "highlights": [
+        "Legendary home cooking",
+        "Beautiful garden",
+        "Personal attention"
+      ]
+    },
+    {
+      "id": "S-SPT-004",
+      "name": "Hotel Spiti Heritage",
+      "destination": "Spiti Valley",
+      "location": "Kaza",
+      "type": "hotel",
+      "price_per_night_inr": 3000,
+      "rating": 4.1,
+      "is_local_homestay": false,
+      "local_owner_name": null,
+      "max_guests": 30,
+      "amenities": [
+        "restaurant",
+        "room service",
+        "wifi",
+        "parking",
+        "power backup",
+        "attached bathroom"
+      ],
+      "description": "The most upscale option in Kaza with reliable amenities and a multi-cuisine restaurant.",
+      "indoor_activities": [
+        "Restaurant dining",
+        "Indoor lounge"
+      ],
+      "images": [
+        "https://images.unsplash.com/photo-1542314831-068cd1dbfeeb?auto=format&fit=crop&w=800&q=80"
+      ],
+      "highlights": [
+        "Most reliable amenities",
+        "Multi-cuisine restaurant"
+      ]
+    },
+    {
+      "id": "S-CRG-001",
+      "name": "Raju's Coffee Estate Homestay",
+      "destination": "Coorg",
+      "location": "Madikeri",
+      "type": "homestay",
+      "price_per_night_inr": 1200,
+      "rating": 4.8,
+      "is_local_homestay": true,
+      "local_owner_name": "Raju Ponnappa",
+      "max_guests": 8,
+      "amenities": [
+        "coffee plantation tour",
+        "home-cooked Kodava food",
+        "bonfire",
+        "nature trails",
+        "parking"
+      ],
+      "description": "Stay amidst a working coffee estate run by a 3rd-generation Kodava family. Wake up to the aroma of fresh coffee, enjoy Kodava pandi curry, and walk through misty plantation trails.",
+      "indoor_activities": [
+        "Coffee roasting workshop",
+        "Kodava cooking class",
+        "Spice garden tour",
+        "Traditional Kodava dance session"
+      ],
+      "images": [
+        "https://images.unsplash.com/photo-1587061949409-02df41d5e562?auto=format&fit=crop&w=800&q=80"
+      ],
+      "highlights": [
+        "Working coffee plantation",
+        "Authentic Kodava cuisine",
+        "Family-run for 3 generations"
+      ]
+    },
+    {
+      "id": "S-CRG-002",
+      "name": "Misty Woods Cottage",
+      "destination": "Coorg",
+      "location": "Virajpet",
+      "type": "cottage",
+      "price_per_night_inr": 1800,
+      "rating": 4.6,
+      "is_local_homestay": true,
+      "local_owner_name": "Kaveri Chengappa",
+      "max_guests": 6,
+      "amenities": [
+        "private cottage",
+        "sit-out area",
+        "nature walks",
+        "bird watching",
+        "breakfast included"
+      ],
+      "description": "Secluded cottages surrounded by pepper and cardamom plantations. Perfect for couples and families seeking tranquility.",
+      "indoor_activities": [
+        "Bird watching from cottage",
+        "Spice identification session",
+        "Yoga sessions",
+        "Board games"
+      ],
+      "images": [
+        "https://images.unsplash.com/photo-1518780664697-55e3ad937233?auto=format&fit=crop&w=800&q=80"
+      ],
+      "highlights": [
+        "Secluded location",
+        "Spice plantation setting",
+        "Perfect for families"
+      ]
+    },
+    {
+      "id": "S-CRG-003",
+      "name": "Coorg Wilderness Resort",
+      "destination": "Coorg",
+      "location": "Madikeri",
+      "type": "resort",
+      "price_per_night_inr": 3500,
+      "rating": 4.4,
+      "is_local_homestay": false,
+      "local_owner_name": null,
+      "max_guests": 50,
+      "amenities": [
+        "swimming pool",
+        "spa",
+        "multi-cuisine restaurant",
+        "wifi",
+        "room service",
+        "activities desk"
+      ],
+      "description": "Full-service resort with all modern amenities. A comfortable but standardized experience.",
+      "indoor_activities": [
+        "Spa treatment",
+        "Indoor pool",
+        "Restaurant dining"
+      ],
+      "images": [
+        "https://images.unsplash.com/photo-1566073771259-6a8506099945?auto=format&fit=crop&w=800&q=80"
+      ],
+      "highlights": [
+        "Full amenities",
+        "Swimming pool",
+        "Spa"
+      ]
+    },
+    {
+      "id": "S-CRG-004",
+      "name": "Backpacker's Nest Coorg",
+      "destination": "Coorg",
+      "location": "Madikeri",
+      "type": "hostel",
+      "price_per_night_inr": 500,
+      "rating": 4.2,
+      "is_local_homestay": false,
+      "local_owner_name": null,
+      "max_guests": 16,
+      "amenities": [
+        "dorm beds",
+        "common kitchen",
+        "wifi",
+        "group treks"
+      ],
+      "description": "Budget-friendly hostel popular with solo travelers and backpackers.",
+      "indoor_activities": [
+        "Common area hangout",
+        "Group cooking"
+      ],
+      "images": [
+        "https://images.unsplash.com/photo-1582719478250-c89cae4dc85b?auto=format&fit=crop&w=800&q=80"
+      ],
+      "highlights": [
+        "Ultra budget-friendly",
+        "Social atmosphere"
+      ]
+    },
+    {
+      "id": "S-MEG-001",
+      "name": "Bah Kynthei's Living Root Bridge Homestay",
+      "destination": "Meghalaya",
+      "location": "Cherrapunji",
+      "type": "homestay",
+      "price_per_night_inr": 900,
+      "rating": 4.9,
+      "is_local_homestay": true,
+      "local_owner_name": "Bah Kynthei Lyngdoh",
+      "max_guests": 6,
+      "amenities": [
+        "guided root bridge treks",
+        "Khasi meals",
+        "cultural evenings",
+        "nature trails"
+      ],
+      "description": "An extraordinary homestay near the famous living root bridges. Bah Kynthei is a local guide who has been showing travelers the hidden gems of Meghalaya for 15 years. Enjoy jadoh (Khasi red rice) and tungrymbai.",
+      "indoor_activities": [
+        "Khasi cooking class",
+        "Traditional bamboo craft making",
+        "Storytelling about Khasi mythology",
+        "Music night with traditional instruments"
+      ],
+      "images": [],
+      "highlights": [
+        "Near living root bridges",
+        "Expert local guide",
+        "Authentic Khasi cuisine"
+      ]
+    },
+    {
+      "id": "S-MEG-002",
+      "name": "Cloud9 Shillong",
+      "destination": "Meghalaya",
+      "location": "Shillong",
+      "type": "hotel",
+      "price_per_night_inr": 2200,
+      "rating": 4.3,
+      "is_local_homestay": false,
+      "local_owner_name": null,
+      "max_guests": 40,
+      "amenities": [
+        "city center",
+        "restaurant",
+        "wifi",
+        "room service",
+        "parking"
+      ],
+      "description": "Centrally located hotel in Shillong with modern amenities and easy access to Police Bazaar.",
+      "indoor_activities": [
+        "Hotel restaurant",
+        "City shopping guide"
+      ],
+      "images": [],
+      "highlights": [
+        "Central location",
+        "City access",
+        "Modern amenities"
+      ]
+    },
+    {
+      "id": "S-MEG-003",
+      "name": "Kong Mary's Bamboo Cottage",
+      "destination": "Meghalaya",
+      "location": "Mawlynnong",
+      "type": "homestay",
+      "price_per_night_inr": 700,
+      "rating": 4.7,
+      "is_local_homestay": true,
+      "local_owner_name": "Kong Mary Marbaniang",
+      "max_guests": 4,
+      "amenities": [
+        "bamboo cottage",
+        "organic meals",
+        "village tour",
+        "nature walks"
+      ],
+      "description": "Stay in a traditional bamboo cottage in Asia's cleanest village. Kong Mary serves organic vegetables from her garden and teaches visitors about sustainable living the Khasi way.",
+      "indoor_activities": [
+        "Bamboo weaving class",
+        "Organic cooking with garden produce",
+        "Village history walk"
+      ],
+      "images": [],
+      "highlights": [
+        "Asia's cleanest village",
+        "Organic farm-to-table meals",
+        "Sustainable living"
+      ]
+    },
+    {
+      "id": "S-MEG-004",
+      "name": "Ri Kynjai Resort",
+      "destination": "Meghalaya",
+      "location": "Umiam Lake",
+      "type": "resort",
+      "price_per_night_inr": 4500,
+      "rating": 4.6,
+      "is_local_homestay": false,
+      "local_owner_name": null,
+      "max_guests": 60,
+      "amenities": [
+        "lake view",
+        "spa",
+        "restaurant",
+        "kayaking",
+        "infinity pool",
+        "wifi"
+      ],
+      "description": "Premium resort overlooking Umiam Lake with Khasi-inspired architecture.",
+      "indoor_activities": [
+        "Spa",
+        "Fine dining",
+        "Indoor games"
+      ],
+      "images": [],
+      "highlights": [
+        "Umiam Lake views",
+        "Luxury amenities",
+        "Khasi architecture"
+      ]
+    },
+    {
+      "id": "S-RSK-001",
+      "name": "Ganga View Ashram Homestay",
+      "destination": "Rishikesh",
+      "location": "Tapovan",
+      "type": "homestay",
+      "price_per_night_inr": 1500,
+      "rating": 4.8,
+      "is_local_homestay": true,
+      "local_owner_name": "Swami Anand & Devika",
+      "max_guests": 6,
+      "amenities": [
+        "rooftop yoga",
+        "organic sattvic meals",
+        "Ganga views",
+        "herbal tea",
+        "hot water"
+      ],
+      "description": "Peaceful ashram-style homestay overlooking the sacred Ganges. Enjoy morning meditation and home-cooked Garhwali vegetarian meals.",
+      "indoor_activities": [
+        "Sunrise Hatha Yoga",
+        "Ayurvedic cooking class",
+        "Ganga philosophy circle"
+      ],
+      "images": [
+        "https://images.unsplash.com/photo-1545205597-3d9d02c29597?auto=format&fit=crop&w=800&q=80"
+      ],
+      "highlights": [
+        "Direct Ganges river view",
+        "Daily yoga sessions",
+        "Authentic Garhwali food"
+      ]
+    },
+    {
+      "id": "S-RSK-002",
+      "name": "Tapovan Eco Guesthouse",
+      "destination": "Rishikesh",
+      "location": "Laxman Jhula",
+      "type": "guesthouse",
+      "price_per_night_inr": 2000,
+      "rating": 4.6,
+      "is_local_homestay": true,
+      "local_owner_name": "Vikram Rawat",
+      "max_guests": 8,
+      "amenities": [
+        "balcony mountain view",
+        "solar water heater",
+        "wifi",
+        "cafe"
+      ],
+      "description": "Family-run eco-friendly guesthouse steps from Laxman Jhula with serene mountain views.",
+      "indoor_activities": [
+        "Herbal tea tasting",
+        "Sound bath healing"
+      ],
+      "images": [
+        "https://images.unsplash.com/photo-1582719478250-c89cae4dc85b?auto=format&fit=crop&w=800&q=80"
+      ],
+      "highlights": [
+        "Central location",
+        "Eco-conscious",
+        "Great hospitality"
+      ]
+    },
+    {
+      "id": "S-RSK-003",
+      "name": "Zostel Rishikesh (Tapovan)",
+      "destination": "Rishikesh",
+      "location": "Tapovan",
+      "type": "hostel",
+      "price_per_night_inr": 750,
+      "rating": 4.5,
+      "is_local_homestay": false,
+      "local_owner_name": null,
+      "max_guests": 24,
+      "amenities": [
+        "rooftop cafe",
+        "wifi",
+        "community lounge",
+        "hot water"
+      ],
+      "description": "Energetic backpacker hostel in Tapovan with rooftop cafe, Ganga view deck, and daily yoga gatherings.",
+      "indoor_activities": [
+        "Board games",
+        "Open mic evenings",
+        "Meditation circles"
+      ],
+      "images": [
+        "https://images.unsplash.com/photo-1555854877-bab0e564b8d5?auto=format&fit=crop&w=800&q=80"
+      ],
+      "highlights": [
+        "Budget friendly",
+        "Social community",
+        "Walk to Ganga"
+      ]
+    },
+    {
+      "id": "S-MNL-001",
+      "name": "Himalayan Apple Orchard Stay",
+      "destination": "Manali",
+      "location": "Old Manali",
+      "type": "homestay",
+      "price_per_night_inr": 1800,
+      "rating": 4.8,
+      "is_local_homestay": true,
+      "local_owner_name": "Dharamveer Thakur",
+      "max_guests": 6,
+      "amenities": [
+        "apple orchard garden",
+        "wood-fired tandoor",
+        "mountain panorama",
+        "bonfire",
+        "home-cooked dham"
+      ],
+      "description": "Traditional Himachali stone-and-wood home surrounded by organic apple trees with panoramic views of snow peaks.",
+      "indoor_activities": [
+        "Himachali cooking lesson",
+        "Apple cider pressing",
+        "Local folk tales around fire"
+      ],
+      "images": [
+        "https://images.unsplash.com/photo-1510798831971-661eb04b3739?auto=format&fit=crop&w=800&q=80"
+      ],
+      "highlights": [
+        "Organic apple orchard",
+        "Stone & timber architecture",
+        "Authentic Himachali Dham"
+      ]
+    },
+    {
+      "id": "S-MNL-002",
+      "name": "Old Manali Backpacker Lodge",
+      "destination": "Manali",
+      "location": "Vashisht",
+      "type": "hostel",
+      "price_per_night_inr": 800,
+      "rating": 4.4,
+      "is_local_homestay": false,
+      "local_owner_name": null,
+      "max_guests": 24,
+      "amenities": [
+        "communal lounge",
+        "cafe",
+        "guitar jams",
+        "hot water"
+      ],
+      "description": "Vibrant budget lodge near Vashisht hot springs, popular with trekkers and solo adventurers.",
+      "indoor_activities": [
+        "Board games",
+        "Acoustic jam nights"
+      ],
+      "images": [
+        "https://images.unsplash.com/photo-1520250497591-112f2f40a3f4?auto=format&fit=crop&w=800&q=80"
+      ],
+      "highlights": [
+        "Budget friendly",
+        "Walk to hot springs",
+        "Backpacker community"
+      ]
+    },
+    {
+      "id": "S-MNL-003",
+      "name": "Cedar Wood Cottage & Homestay",
+      "destination": "Manali",
+      "location": "Naggar / Old Manali",
+      "type": "guesthouse",
+      "price_per_night_inr": 2200,
+      "rating": 4.7,
+      "is_local_homestay": true,
+      "local_owner_name": "Sunil Negi",
+      "max_guests": 8,
+      "amenities": [
+        "wood stove",
+        "cedar pine views",
+        "home-cooked trout",
+        "mountain garden"
+      ],
+      "description": "Cozy heritage wooden cottage nestled amidst deodar pine trees with panoramic valley views.",
+      "indoor_activities": [
+        "Wood carving demo",
+        "Himachali tea tasting"
+      ],
+      "images": [
+        "https://images.unsplash.com/photo-1542314831-068cd1dbfeeb?auto=format&fit=crop&w=800&q=80"
+      ],
+      "highlights": [
+        "Quiet pine forest",
+        "Personal host care",
+        "Traditional Himachali meals"
+      ]
+    },
+    {
+      "id": "S-KRL-001",
+      "name": "Backwater Heritage Homestay",
+      "destination": "Kerala",
+      "location": "Alleppey",
+      "type": "homestay",
+      "price_per_night_inr": 2200,
+      "rating": 4.9,
+      "is_local_homestay": true,
+      "local_owner_name": "Mathew & Annamma",
+      "max_guests": 6,
+      "amenities": [
+        "canal-front veranda",
+        "traditional fish curry",
+        "country boat trips",
+        "ayurvedic massage on request"
+      ],
+      "description": "120-year-old traditional Keralite Tharavadu right on the tranquil Alleppey canals. Authentic home-cooked Karimeen and appams.",
+      "indoor_activities": [
+        "Kerala spice cooking demo",
+        "Coir rope making",
+        "Traditional fishing techniques"
+      ],
+      "images": [
+        "https://images.unsplash.com/photo-1602216056096-3b40cc0c9944?auto=format&fit=crop&w=800&q=80"
+      ],
+      "highlights": [
+        "Canal-side setting",
+        "Authentic sadya feasts",
+        "Ancient wooden architecture"
+      ]
+    },
+    {
+      "id": "S-KRL-002",
+      "name": "Munnar Tea Estate Bungalow",
+      "destination": "Kerala",
+      "location": "Munnar",
+      "type": "guesthouse",
+      "price_per_night_inr": 3000,
+      "rating": 4.8,
+      "is_local_homestay": true,
+      "local_owner_name": "Kurian Joseph",
+      "max_guests": 8,
+      "amenities": [
+        "tea garden views",
+        "fireplace",
+        "tea tasting session",
+        "guided plantation walk"
+      ],
+      "description": "Colonial-style planter's bungalow nestled right in the high-altitude tea gardens of Munnar.",
+      "indoor_activities": [
+        "Tea leaf tasting masterclass",
+        "Cardamom picking demo"
+      ],
+      "images": [
+        "https://images.unsplash.com/photo-1590523741831-ab7e8b8f9c7f?auto=format&fit=crop&w=800&q=80"
+      ],
+      "highlights": [
+        "360\u00b0 tea garden views",
+        "Misty mountain air",
+        "Heritage colonial charm"
+      ]
+    },
+    {
+      "id": "S-KRL-003",
+      "name": "Zostel Alleppey Backwaters",
+      "destination": "Kerala",
+      "location": "Alleppey Beach",
+      "type": "hostel",
+      "price_per_night_inr": 850,
+      "rating": 4.4,
+      "is_local_homestay": false,
+      "local_owner_name": null,
+      "max_guests": 20,
+      "amenities": [
+        "beachfront deck",
+        "wifi",
+        "cafe",
+        "canoe tours"
+      ],
+      "description": "Chill social hostel steps from Alleppey beach with sunset view deck and organized canal cruises.",
+      "indoor_activities": [
+        "Board games",
+        "Sunset jam sessions"
+      ],
+      "images": [
+        "https://images.unsplash.com/photo-1540555700478-4be289fbecef?auto=format&fit=crop&w=800&q=80"
+      ],
+      "highlights": [
+        "Beach proximity",
+        "Social vibe",
+        "Sunset deck"
+      ]
+    },
+    {
+      "id": "S-JPR-001",
+      "name": "Rajputana Heritage Homestay",
+      "destination": "Jaipur",
+      "location": "Bani Park",
+      "type": "homestay",
+      "price_per_night_inr": 1800,
+      "rating": 4.9,
+      "is_local_homestay": true,
+      "local_owner_name": "Thakur Mahendra Singh",
+      "max_guests": 6,
+      "amenities": [
+        "haveli courtyard",
+        "rooftop dinner",
+        "Rajasthani thali",
+        "heritage decor",
+        "wifi"
+      ],
+      "description": "Experience genuine Rajput hospitality in a preserved private haveli. Savor authentic dal baati churma and explore local artisan heritage.",
+      "indoor_activities": [
+        "Turban tying demonstration",
+        "Puppet making workshop",
+        "Rajasthani spice tour"
+      ],
+      "images": [
+        "https://images.unsplash.com/photo-1599661046289-e31897846e41?auto=format&fit=crop&w=800&q=80"
+      ],
+      "highlights": [
+        "Traditional Haveli",
+        "Homemade royal Rajput recipes",
+        "Warm family hospitality"
+      ]
+    },
+    {
+      "id": "S-JPR-002",
+      "name": "Pink City Courtyard Guesthouse",
+      "destination": "Jaipur",
+      "location": "Old City",
+      "type": "guesthouse",
+      "price_per_night_inr": 1500,
+      "rating": 4.6,
+      "is_local_homestay": true,
+      "local_owner_name": "Sunita Sharma",
+      "max_guests": 8,
+      "amenities": [
+        "inner courtyard",
+        "chai station",
+        "city terrace",
+        "air cooling"
+      ],
+      "description": "Charming family-run guesthouse within walking distance of Hawa Mahal and Johari Bazaar.",
+      "indoor_activities": [
+        "Chai & snack pairing",
+        "Henna art session"
+      ],
+      "images": [
+        "https://images.unsplash.com/photo-1477587458883-47145ed94245?auto=format&fit=crop&w=800&q=80"
+      ],
+      "highlights": [
+        "Walking distance to Hawa Mahal",
+        "Peaceful central courtyard",
+        "Budget friendly"
+      ]
+    },
+    {
+      "id": "S-JPR-003",
+      "name": "Zostel Jaipur (M.I. Road)",
+      "destination": "Jaipur",
+      "location": "M.I. Road",
+      "type": "hostel",
+      "price_per_night_inr": 700,
+      "rating": 4.5,
+      "is_local_homestay": false,
+      "local_owner_name": null,
+      "max_guests": 28,
+      "amenities": [
+        "rooftop cafe",
+        "wifi",
+        "walking tours",
+        "game zone"
+      ],
+      "description": "Modern traveler hub located in central Jaipur. Join guided morning old city walking tours and evening chai gatherings.",
+      "indoor_activities": [
+        "City trivia",
+        "Postcard workshops"
+      ],
+      "images": [
+        "https://images.unsplash.com/photo-1590490360182-c33d57733427?auto=format&fit=crop&w=800&q=80"
+      ],
+      "highlights": [
+        "Central location",
+        "Walking tours",
+        "Social cafe"
+      ]
+    },
+    {
+      "id": "S-GOA-001",
+      "name": "Maria's Goan Heritage Homestay",
+      "destination": "Goa",
+      "location": "Divar Island / Panaji",
+      "type": "homestay",
+      "price_per_night_inr": 2000,
+      "rating": 4.8,
+      "is_local_homestay": true,
+      "local_owner_name": "Maria Fernandes",
+      "max_guests": 6,
+      "amenities": [
+        "portuguese veranda",
+        "fresh seafood curry",
+        "fruit orchard",
+        "village cycles",
+        "wifi"
+      ],
+      "description": "A tranquil 150-year-old Portuguese villa on idyllic Divar Island. Wake up to bird calls, taste fresh poi bread, and savor authentic Goan prawn balch\u00e3o.",
+      "indoor_activities": [
+        "Bebinca baking workshop",
+        "Goan vinegar and feni tasting",
+        "Portuguese tile painting"
+      ],
+      "images": [
+        "https://images.unsplash.com/photo-1512917774080-9991f1c4c750?auto=format&fit=crop&w=800&q=80"
+      ],
+      "highlights": [
+        "150-year-old Portuguese villa",
+        "Divar Island seclusion",
+        "Authentic Catholic Goan home cuisine"
+      ]
+    },
+    {
+      "id": "S-GOA-002",
+      "name": "Ocean View Guesthouse",
+      "destination": "Goa",
+      "location": "Arambol",
+      "type": "guesthouse",
+      "price_per_night_inr": 2400,
+      "rating": 4.5,
+      "is_local_homestay": true,
+      "local_owner_name": "Joaquim D'Souza",
+      "max_guests": 8,
+      "amenities": [
+        "sea-facing balcony",
+        "beach access",
+        "hammocks",
+        "fresh juice bar"
+      ],
+      "description": "Quiet coastal retreat 2 minutes from Arambol beach and sweet water lake.",
+      "indoor_activities": [
+        "Sunset acoustic sessions",
+        "Local pottery demo"
+      ],
+      "images": [
+        "https://images.unsplash.com/photo-1507525428033-b723cf961d3e?auto=format&fit=crop&w=800&q=80"
+      ],
+      "highlights": [
+        "Beach proximity",
+        "Quiet North Goa vibe",
+        "Fresh seafood"
+      ]
+    },
+    {
+      "id": "S-GOA-003",
+      "name": "Zostel Goa (Morjim)",
+      "destination": "Goa",
+      "location": "Morjim",
+      "type": "hostel",
+      "price_per_night_inr": 900,
+      "rating": 4.4,
+      "is_local_homestay": false,
+      "local_owner_name": null,
+      "max_guests": 22,
+      "amenities": [
+        "swimming pool",
+        "cafe",
+        "beach shuttle",
+        "wifi"
+      ],
+      "description": "Vibrant beachside hostel near olive ridley turtle nesting sites in Morjim. Pool, cafe, and scooter rentals.",
+      "indoor_activities": [
+        "Pool tournaments",
+        "Movie nights"
+      ],
+      "images": [
+        "https://images.unsplash.com/photo-1571003123894-1f0594d2b5d9?auto=format&fit=crop&w=800&q=80"
+      ],
+      "highlights": [
+        "Pool on site",
+        "Near Morjim beach",
+        "Social events"
+      ]
+    }
+  ]
+}

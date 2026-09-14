@@ -1,0 +1,726 @@
+{
+  "routes": [
+    {
+      "origin": "Delhi",
+      "destination": "Spiti Valley",
+      "via": "Manali",
+      "options": [
+        {
+          "id": "T-SPT-001",
+          "mode": "bus",
+          "operator": "HRTC Volvo",
+          "departure": "21:00",
+          "arrival": "09:00+1",
+          "duration_hours": 12,
+          "price_inr": 1400,
+          "class": "semi-sleeper",
+          "waitlist_status": "confirmed",
+          "cancellation_probability": 0.05,
+          "notes": "Delhi → Manali overnight Volvo, then local bus to Kaza"
+        },
+        {
+          "id": "T-SPT-002",
+          "mode": "bus",
+          "operator": "HRTC Ordinary",
+          "departure": "17:00",
+          "arrival": "08:00+1",
+          "duration_hours": 15,
+          "price_inr": 800,
+          "class": "seater",
+          "waitlist_status": "confirmed",
+          "cancellation_probability": 0.1,
+          "notes": "Budget option, longer travel time"
+        },
+        {
+          "id": "T-SPT-003",
+          "mode": "flight+bus",
+          "operator": "IndiGo + Local Bus",
+          "departure": "06:00",
+          "arrival": "18:00",
+          "duration_hours": 12,
+          "price_inr": 5500,
+          "class": "economy",
+          "waitlist_status": "confirmed",
+          "cancellation_probability": 0.08,
+          "notes": "Delhi → Kullu/Bhuntar flight, then bus to Kaza"
+        },
+        {
+          "id": "T-SPT-004",
+          "mode": "train+bus",
+          "operator": "Kalka Shatabdi + HRTC",
+          "departure": "07:40",
+          "arrival": "22:00",
+          "duration_hours": 14.5,
+          "price_inr": 1800,
+          "class": "chair car",
+          "waitlist_status": "waitlisted",
+          "cancellation_probability": 0.35,
+          "notes": "Delhi → Chandigarh Shatabdi, then bus to Manali → Kaza. WAITLISTED - risky option"
+        }
+      ]
+    },
+    {
+      "origin": "Delhi",
+      "destination": "Coorg",
+      "via": "Bangalore",
+      "options": [
+        {
+          "id": "T-CRG-001",
+          "mode": "flight+bus",
+          "operator": "IndiGo + KSRTC",
+          "departure": "06:30",
+          "arrival": "14:30",
+          "duration_hours": 8,
+          "price_inr": 5200,
+          "class": "economy",
+          "waitlist_status": "confirmed",
+          "cancellation_probability": 0.05,
+          "notes": "Delhi → Bangalore flight, then KSRTC Airavat to Madikeri"
+        },
+        {
+          "id": "T-CRG-002",
+          "mode": "flight+cab",
+          "operator": "Air India + Local Cab",
+          "departure": "09:00",
+          "arrival": "16:00",
+          "duration_hours": 7,
+          "price_inr": 7500,
+          "class": "economy",
+          "waitlist_status": "confirmed",
+          "cancellation_probability": 0.03,
+          "notes": "Delhi → Mysore flight, private cab to Coorg"
+        },
+        {
+          "id": "T-CRG-003",
+          "mode": "train+bus",
+          "operator": "Rajdhani + KSRTC",
+          "departure": "20:50",
+          "arrival": "12:00+1",
+          "duration_hours": 15,
+          "price_inr": 2800,
+          "class": "3AC",
+          "waitlist_status": "RAC",
+          "cancellation_probability": 0.2,
+          "notes": "Delhi → Bangalore Rajdhani, then bus. RAC - might not get confirmed"
+        },
+        {
+          "id": "T-CRG-004",
+          "mode": "train+bus",
+          "operator": "Karnataka Express + KSRTC",
+          "departure": "21:30",
+          "arrival": "18:00+2",
+          "duration_hours": 44,
+          "price_inr": 1200,
+          "class": "sleeper",
+          "waitlist_status": "confirmed",
+          "cancellation_probability": 0.05,
+          "notes": "Budget option, 2-day journey"
+        }
+      ]
+    },
+    {
+      "origin": "Delhi",
+      "destination": "Meghalaya",
+      "via": "Guwahati",
+      "options": [
+        {
+          "id": "T-MEG-001",
+          "mode": "flight+cab",
+          "operator": "IndiGo + Local Cab",
+          "departure": "06:00",
+          "arrival": "12:00",
+          "duration_hours": 6,
+          "price_inr": 6800,
+          "class": "economy",
+          "waitlist_status": "confirmed",
+          "cancellation_probability": 0.04,
+          "notes": "Delhi → Guwahati flight, cab to Shillong"
+        },
+        {
+          "id": "T-MEG-002",
+          "mode": "flight+bus",
+          "operator": "SpiceJet + Meghalaya Transport",
+          "departure": "10:30",
+          "arrival": "17:30",
+          "duration_hours": 7,
+          "price_inr": 5500,
+          "class": "economy",
+          "waitlist_status": "confirmed",
+          "cancellation_probability": 0.06,
+          "notes": "Delhi → Guwahati flight, state transport bus to Shillong"
+        },
+        {
+          "id": "T-MEG-003",
+          "mode": "train+cab",
+          "operator": "Rajdhani Express + Cab",
+          "departure": "15:55",
+          "arrival": "14:00+1",
+          "duration_hours": 22,
+          "price_inr": 2900,
+          "class": "3AC",
+          "waitlist_status": "confirmed",
+          "cancellation_probability": 0.07,
+          "notes": "Delhi → Guwahati Rajdhani, then cab to Shillong"
+        },
+        {
+          "id": "T-MEG-004",
+          "mode": "train+bus",
+          "operator": "Northeast Express + Bus",
+          "departure": "20:00",
+          "arrival": "08:00+2",
+          "duration_hours": 36,
+          "price_inr": 1100,
+          "class": "sleeper",
+          "waitlist_status": "waitlisted",
+          "cancellation_probability": 0.4,
+          "notes": "Budget option but WAITLISTED - high risk of not getting seat"
+        }
+      ]
+    },
+    {
+      "origin": "Spiti Valley",
+      "destination": "Delhi",
+      "via": "Manali",
+      "options": [
+        {
+          "id": "T-SPT-R01",
+          "mode": "bus",
+          "operator": "HRTC Volvo",
+          "departure": "06:00",
+          "arrival": "18:00",
+          "duration_hours": 12,
+          "price_inr": 1400,
+          "class": "semi-sleeper",
+          "waitlist_status": "confirmed",
+          "cancellation_probability": 0.05
+        },
+        {
+          "id": "T-SPT-R02",
+          "mode": "bus+flight",
+          "operator": "Local Bus + IndiGo",
+          "departure": "05:00",
+          "arrival": "16:00",
+          "duration_hours": 11,
+          "price_inr": 5200,
+          "class": "economy",
+          "waitlist_status": "confirmed",
+          "cancellation_probability": 0.08
+        },
+        {
+          "id": "T-SPT-R03",
+          "mode": "shared_cab",
+          "operator": "Local Shared Taxi",
+          "departure": "07:00",
+          "arrival": "22:00",
+          "duration_hours": 15,
+          "price_inr": 2000,
+          "class": "SUV",
+          "waitlist_status": "confirmed",
+          "cancellation_probability": 0.15
+        }
+      ]
+    },
+    {
+      "origin": "Coorg",
+      "destination": "Delhi",
+      "via": "Bangalore",
+      "options": [
+        {
+          "id": "T-CRG-R01",
+          "mode": "bus+flight",
+          "operator": "KSRTC + IndiGo",
+          "departure": "05:00",
+          "arrival": "14:00",
+          "duration_hours": 9,
+          "price_inr": 5400,
+          "class": "economy",
+          "waitlist_status": "confirmed",
+          "cancellation_probability": 0.05
+        },
+        {
+          "id": "T-CRG-R02",
+          "mode": "cab+flight",
+          "operator": "Local Cab + Air India",
+          "departure": "06:00",
+          "arrival": "15:00",
+          "duration_hours": 9,
+          "price_inr": 7800,
+          "class": "economy",
+          "waitlist_status": "confirmed",
+          "cancellation_probability": 0.03
+        },
+        {
+          "id": "T-CRG-R03",
+          "mode": "bus+train",
+          "operator": "KSRTC + Rajdhani",
+          "departure": "17:00",
+          "arrival": "12:00+2",
+          "duration_hours": 19,
+          "price_inr": 2600,
+          "class": "3AC",
+          "waitlist_status": "confirmed",
+          "cancellation_probability": 0.06
+        }
+      ]
+    },
+    {
+      "origin": "Meghalaya",
+      "destination": "Delhi",
+      "via": "Guwahati",
+      "options": [
+        {
+          "id": "T-MEG-R01",
+          "mode": "cab+flight",
+          "operator": "Local Cab + IndiGo",
+          "departure": "06:00",
+          "arrival": "12:00",
+          "duration_hours": 6,
+          "price_inr": 7000,
+          "class": "economy",
+          "waitlist_status": "confirmed",
+          "cancellation_probability": 0.04
+        },
+        {
+          "id": "T-MEG-R02",
+          "mode": "bus+flight",
+          "operator": "Meghalaya Transport + SpiceJet",
+          "departure": "05:00",
+          "arrival": "13:00",
+          "duration_hours": 8,
+          "price_inr": 5800,
+          "class": "economy",
+          "waitlist_status": "confirmed",
+          "cancellation_probability": 0.06
+        },
+        {
+          "id": "T-MEG-R03",
+          "mode": "cab+train",
+          "operator": "Cab + Rajdhani Express",
+          "departure": "08:00",
+          "arrival": "10:00+1",
+          "duration_hours": 26,
+          "price_inr": 3200,
+          "class": "3AC",
+          "waitlist_status": "confirmed",
+          "cancellation_probability": 0.07
+        }
+      ]
+    },
+    {
+      "origin": "Delhi",
+      "destination": "Rishikesh",
+      "options": [
+        {
+          "id": "T-RSK-001",
+          "mode": "flight+cab",
+          "operator": "IndiGo + Valley Cab",
+          "departure": "08:00",
+          "arrival": "09:45",
+          "duration_hours": 1.75,
+          "price_inr": 3000,
+          "class": "economy",
+          "waitlist_status": "confirmed",
+          "cancellation_probability": 0.04,
+          "notes": "Direct flight to Dehradun Airport + synchronized 45m ashram taxi transfer"
+        },
+        {
+          "id": "T-RSK-002",
+          "mode": "flight+cab",
+          "operator": "SpiceJet + Valley Cab",
+          "departure": "09:30",
+          "arrival": "11:30",
+          "duration_hours": 2,
+          "price_inr": 2800,
+          "class": "economy",
+          "waitlist_status": "confirmed",
+          "cancellation_probability": 0.05
+        },
+        {
+          "id": "T-RSK-003",
+          "mode": "bus",
+          "operator": "UTC Volvo",
+          "departure": "22:00",
+          "arrival": "05:00+1",
+          "duration_hours": 7,
+          "price_inr": 800,
+          "class": "semi-sleeper AC",
+          "waitlist_status": "confirmed",
+          "cancellation_probability": 0.06,
+          "notes": "Overnight highway coach reaching Tapovan by sunrise"
+        },
+        {
+          "id": "T-RSK-004",
+          "mode": "bus",
+          "operator": "Laxmi Holidays",
+          "departure": "23:00",
+          "arrival": "05:30+1",
+          "duration_hours": 6.5,
+          "price_inr": 1000,
+          "class": "premium seater",
+          "waitlist_status": "confirmed",
+          "cancellation_probability": 0.05
+        },
+        {
+          "id": "T-RSK-005",
+          "mode": "train+cab",
+          "operator": "Jan Shatabdi + Ashram Cab",
+          "departure": "06:50",
+          "arrival": "12:15",
+          "duration_hours": 5.4,
+          "price_inr": 1200,
+          "class": "AC Chair Car",
+          "waitlist_status": "confirmed",
+          "cancellation_probability": 0.03,
+          "notes": "Jan Shatabdi Express to Haridwar, then a 30-minute taxi onwards to Rishikesh."
+        }
+      ]
+    },
+    {
+      "origin": "Rishikesh",
+      "destination": "Delhi",
+      "options": [
+        {
+          "id": "T-RSK-R01",
+          "mode": "cab+flight",
+          "operator": "Valley Cab + IndiGo",
+          "departure": "17:00",
+          "arrival": "19:00",
+          "duration_hours": 2,
+          "price_inr": 3200,
+          "class": "economy",
+          "waitlist_status": "confirmed",
+          "cancellation_probability": 0.04
+        },
+        {
+          "id": "T-RSK-R02",
+          "mode": "bus",
+          "operator": "UTC Volvo",
+          "departure": "21:30",
+          "arrival": "04:30+1",
+          "duration_hours": 7,
+          "price_inr": 800,
+          "class": "semi-sleeper AC",
+          "waitlist_status": "confirmed",
+          "cancellation_probability": 0.06
+        }
+      ]
+    },
+    {
+      "origin": "Delhi",
+      "destination": "Manali",
+      "options": [
+        {
+          "id": "T-MNL-001",
+          "mode": "flight+cab",
+          "operator": "Alliance Air + Valley Shuttle",
+          "departure": "07:00",
+          "arrival": "09:30",
+          "duration_hours": 2.5,
+          "price_inr": 6500,
+          "class": "economy",
+          "waitlist_status": "confirmed",
+          "cancellation_probability": 0.08,
+          "notes": "Scenic flight to Kullu (Bhuntar) + connected private transfer through Beas Valley"
+        },
+        {
+          "id": "T-MNL-002",
+          "mode": "bus",
+          "operator": "HRTC Volvo",
+          "departure": "20:00",
+          "arrival": "08:00+1",
+          "duration_hours": 12,
+          "price_inr": 1200,
+          "class": "semi-sleeper AC",
+          "waitlist_status": "confirmed",
+          "cancellation_probability": 0.05
+        },
+        {
+          "id": "T-MNL-003",
+          "mode": "bus",
+          "operator": "Zingbus Premium",
+          "departure": "21:00",
+          "arrival": "08:30+1",
+          "duration_hours": 11.5,
+          "price_inr": 1500,
+          "class": "sleeper AC",
+          "waitlist_status": "confirmed",
+          "cancellation_probability": 0.05
+        },
+        {
+          "id": "T-MNL-004",
+          "mode": "private-cab",
+          "operator": "Private SUV (Shiva Temple route)",
+          "departure": "05:30",
+          "arrival": "19:30",
+          "duration_hours": 14,
+          "price_inr": 4500,
+          "class": "Private SUV",
+          "waitlist_status": "confirmed",
+          "cancellation_probability": 0.03,
+          "notes": "Private SUV with a local driver stopping at Mandi Shiva Temple and Kullu Valley viewpoints."
+        }
+      ]
+    },
+    {
+      "origin": "Manali",
+      "destination": "Delhi",
+      "options": [
+        {
+          "id": "T-MNL-R01",
+          "mode": "cab+flight",
+          "operator": "Valley Shuttle + Alliance Air",
+          "departure": "09:00",
+          "arrival": "12:00",
+          "duration_hours": 3,
+          "price_inr": 6700,
+          "class": "economy",
+          "waitlist_status": "confirmed",
+          "cancellation_probability": 0.08
+        },
+        {
+          "id": "T-MNL-R02",
+          "mode": "bus",
+          "operator": "HRTC Volvo",
+          "departure": "19:00",
+          "arrival": "07:00+1",
+          "duration_hours": 12,
+          "price_inr": 1200,
+          "class": "semi-sleeper AC",
+          "waitlist_status": "confirmed",
+          "cancellation_probability": 0.05
+        }
+      ]
+    },
+    {
+      "origin": "Delhi",
+      "destination": "Kerala",
+      "options": [
+        {
+          "id": "T-KRL-001",
+          "mode": "flight",
+          "operator": "Vistara",
+          "departure": "09:00",
+          "arrival": "12:00",
+          "duration_hours": 3,
+          "price_inr": 6000,
+          "class": "economy",
+          "waitlist_status": "confirmed",
+          "cancellation_probability": 0.04,
+          "notes": "Direct morning flight from Delhi IGI to Kochi International"
+        },
+        {
+          "id": "T-KRL-002",
+          "mode": "flight",
+          "operator": "Air India Express",
+          "departure": "10:30",
+          "arrival": "13:45",
+          "duration_hours": 3.25,
+          "price_inr": 5500,
+          "class": "economy",
+          "waitlist_status": "confirmed",
+          "cancellation_probability": 0.05
+        },
+        {
+          "id": "T-KRL-003",
+          "mode": "train",
+          "operator": "Rajdhani Express",
+          "departure": "10:00",
+          "arrival": "14:00+1",
+          "duration_hours": 28,
+          "price_inr": 2500,
+          "class": "3AC",
+          "waitlist_status": "confirmed",
+          "cancellation_probability": 0.06
+        }
+      ]
+    },
+    {
+      "origin": "Kerala",
+      "destination": "Delhi",
+      "options": [
+        {
+          "id": "T-KRL-R01",
+          "mode": "flight",
+          "operator": "Vistara",
+          "departure": "15:00",
+          "arrival": "18:00",
+          "duration_hours": 3,
+          "price_inr": 6200,
+          "class": "economy",
+          "waitlist_status": "confirmed",
+          "cancellation_probability": 0.04
+        },
+        {
+          "id": "T-KRL-R02",
+          "mode": "train",
+          "operator": "Rajdhani Express",
+          "departure": "19:00",
+          "arrival": "23:00+1",
+          "duration_hours": 28,
+          "price_inr": 2500,
+          "class": "3AC",
+          "waitlist_status": "confirmed",
+          "cancellation_probability": 0.06
+        }
+      ]
+    },
+    {
+      "origin": "Delhi",
+      "destination": "Jaipur",
+      "options": [
+        {
+          "id": "T-JPR-001",
+          "mode": "train",
+          "operator": "Shatabdi Express",
+          "departure": "06:00",
+          "arrival": "10:30",
+          "duration_hours": 4.5,
+          "price_inr": 800,
+          "class": "CC",
+          "waitlist_status": "confirmed",
+          "cancellation_probability": 0.03,
+          "notes": "Morning flagship express with breakfast served on board"
+        },
+        {
+          "id": "T-JPR-002",
+          "mode": "train",
+          "operator": "Rajdhani Express",
+          "departure": "16:00",
+          "arrival": "20:00",
+          "duration_hours": 4,
+          "price_inr": 1200,
+          "class": "3AC",
+          "waitlist_status": "confirmed",
+          "cancellation_probability": 0.04
+        },
+        {
+          "id": "T-JPR-003",
+          "mode": "flight",
+          "operator": "IndiGo",
+          "departure": "14:00",
+          "arrival": "15:00",
+          "duration_hours": 1,
+          "price_inr": 3200,
+          "class": "economy",
+          "waitlist_status": "confirmed",
+          "cancellation_probability": 0.04
+        },
+        {
+          "id": "T-JPR-004",
+          "mode": "flight",
+          "operator": "SpiceJet",
+          "departure": "06:00",
+          "arrival": "07:00",
+          "duration_hours": 1,
+          "price_inr": 2800,
+          "class": "economy",
+          "waitlist_status": "confirmed",
+          "cancellation_probability": 0.05
+        }
+      ]
+    },
+    {
+      "origin": "Jaipur",
+      "destination": "Delhi",
+      "options": [
+        {
+          "id": "T-JPR-R01",
+          "mode": "train",
+          "operator": "Shatabdi Express",
+          "departure": "17:50",
+          "arrival": "22:20",
+          "duration_hours": 4.5,
+          "price_inr": 800,
+          "class": "CC",
+          "waitlist_status": "confirmed",
+          "cancellation_probability": 0.03
+        },
+        {
+          "id": "T-JPR-R02",
+          "mode": "flight",
+          "operator": "IndiGo",
+          "departure": "18:00",
+          "arrival": "19:00",
+          "duration_hours": 1,
+          "price_inr": 3100,
+          "class": "economy",
+          "waitlist_status": "confirmed",
+          "cancellation_probability": 0.04
+        }
+      ]
+    },
+    {
+      "origin": "Delhi",
+      "destination": "Goa",
+      "options": [
+        {
+          "id": "T-GOA-001",
+          "mode": "flight",
+          "operator": "IndiGo Direct",
+          "departure": "10:00",
+          "arrival": "12:30",
+          "duration_hours": 2.5,
+          "price_inr": 5000,
+          "class": "economy",
+          "waitlist_status": "confirmed",
+          "cancellation_probability": 0.04,
+          "notes": "Direct non-stop flight landing at Dabolim / Mopa Airport"
+        },
+        {
+          "id": "T-GOA-002",
+          "mode": "flight",
+          "operator": "SpiceJet Direct",
+          "departure": "11:30",
+          "arrival": "14:15",
+          "duration_hours": 2.75,
+          "price_inr": 4500,
+          "class": "economy",
+          "waitlist_status": "confirmed",
+          "cancellation_probability": 0.05
+        },
+        {
+          "id": "T-GOA-003",
+          "mode": "train",
+          "operator": "Indian Railways Goa Express",
+          "departure": "15:00",
+          "arrival": "06:00+1",
+          "duration_hours": 15,
+          "price_inr": 1500,
+          "class": "2AC",
+          "waitlist_status": "confirmed",
+          "cancellation_probability": 0.06
+        }
+      ]
+    },
+    {
+      "origin": "Goa",
+      "destination": "Delhi",
+      "options": [
+        {
+          "id": "T-GOA-R01",
+          "mode": "flight",
+          "operator": "IndiGo Direct",
+          "departure": "16:00",
+          "arrival": "18:30",
+          "duration_hours": 2.5,
+          "price_inr": 5200,
+          "class": "economy",
+          "waitlist_status": "confirmed",
+          "cancellation_probability": 0.04
+        },
+        {
+          "id": "T-GOA-R02",
+          "mode": "train",
+          "operator": "Indian Railways Goa Express",
+          "departure": "18:00",
+          "arrival": "09:00+1",
+          "duration_hours": 15,
+          "price_inr": 1500,
+          "class": "2AC",
+          "waitlist_status": "confirmed",
+          "cancellation_probability": 0.06
+        }
+      ]
+    }
+  ]
+}

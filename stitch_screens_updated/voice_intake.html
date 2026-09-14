@@ -1,0 +1,302 @@
+<!DOCTYPE html><html class="h-full" lang="en"><head>
+<meta charset="utf-8">
+<meta content="width=device-width, initial-scale=1.0" name="viewport">
+<title>Wandr. Autonomous Travel OS | Multimodal Voice Intake</title>
+<!-- Tailwind CSS v3 with Plugins -->
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            wandr: {
+              cream: '#faf8f5',
+              surface: '#ffffff',
+              sand: '#f5efe6',
+              amber: '#d97706',
+              terracotta: '#c2410c',
+              earth: '#292524',
+              stone: '#78716c',
+              muted: '#a8a29e',
+              violet: '#7c3aed',
+              cyan: '#0284c7'
+            }
+          },
+          fontFamily: {
+            sans: ['Inter', '-apple-system', 'BlinkMacSystemFont', 'Segoe UI', 'Roboto', 'sans-serif'],
+            mono: ['JetBrains Mono', 'Fira Code', 'monospace']
+          },
+          boxShadow: {
+            'subtle-glass': '0 10px 40px -10px rgba(0, 0, 0, 0.04), 0 2px 6px -1px rgba(0, 0, 0, 0.02)',
+            'glowing-orb': '0 0 60px 20px rgba(124, 58, 237, 0.22), 0 0 100px 40px rgba(194, 65, 12, 0.12)',
+            'card-lift': '0 20px 45px -15px rgba(28, 25, 23, 0.07)'
+          }
+        }
+      }
+    };
+  </script>
+<!-- BEGIN: Custom CSS Styling -->
+<style data-purpose="ambient-animations">
+    @keyframes pulseOrb {
+      0%, 100% {
+        transform: scale(1) rotate(0deg);
+        filter: blur(0px) brightness(1);
+      }
+      50% {
+        transform: scale(1.06) rotate(180deg);
+        filter: blur(1.5px) brightness(1.12);
+      }
+    }
+
+    @keyframes soundWaveMove {
+      0% {
+        transform: scaleY(0.4);
+      }
+      50% {
+        transform: scaleY(1);
+      }
+      100% {
+        transform: scaleY(0.4);
+      }
+    }
+
+    @keyframes breatheRipples {
+      0% {
+        box-shadow: 0 0 0 0 rgba(124, 58, 237, 0.35);
+      }
+      70% {
+        box-shadow: 0 0 0 22px rgba(124, 58, 237, 0);
+      }
+      100% {
+        box-shadow: 0 0 0 0 rgba(124, 58, 237, 0);
+      }
+    }
+
+    @keyframes blinkCursor {
+      0%, 100% { opacity: 1; }
+      50% { opacity: 0; }
+    }
+
+    .animate-orb {
+      animation: pulseOrb 12s ease-in-out infinite alternate;
+    }
+
+    .animate-ripple {
+      animation: breatheRipples 2.4s cubic-bezier(0.24, 0, 0.38, 1) infinite;
+    }
+
+    .cursor-blink {
+      animation: blinkCursor 1s step-end infinite;
+    }
+  </style>
+<style data-purpose="waveform-bars">
+    .wave-bar {
+      display: inline-block;
+      width: 3px;
+      border-radius: 9999px;
+      animation: soundWaveMove 1.2s ease-in-out infinite;
+      transform-origin: center;
+    }
+    .wave-bar:nth-child(1) { height: 16px; animation-delay: 0.1s; }
+    .wave-bar:nth-child(2) { height: 28px; animation-delay: 0.3s; }
+    .wave-bar:nth-child(3) { height: 42px; animation-delay: 0.15s; }
+    .wave-bar:nth-child(4) { height: 60px; animation-delay: 0.4s; }
+    .wave-bar:nth-child(5) { height: 75px; animation-delay: 0.25s; }
+    .wave-bar:nth-child(6) { height: 50px; animation-delay: 0.35s; }
+    .wave-bar:nth-child(7) { height: 68px; animation-delay: 0.05s; }
+    .wave-bar:nth-child(8) { height: 40px; animation-delay: 0.45s; }
+    .wave-bar:nth-child(9) { height: 24px; animation-delay: 0.2s; }
+    .wave-bar:nth-child(10) { height: 14px; animation-delay: 0.5s; }
+  </style>
+<!-- END: Custom CSS Styling -->
+</head>
+<body class="h-full bg-[#faf8f5] text-wandr-earth font-sans flex flex-col antialiased selection:bg-amber-100 selection:text-wandr-terracotta">
+<!-- BEGIN: MainHeader -->
+<header class="w-full bg-[#faf8f5]/90 backdrop-blur-md border-b border-stone-200/70 sticky top-0 z-50">
+<div class="max-w-7xl mx-auto px-6 h-16 flex items-center justify-between">
+<!-- Logo and Brand System Badge -->
+<div class="flex items-center gap-5">
+<a class="flex items-baseline tracking-tight font-semibold text-2xl group" href="#">
+<span class="text-wandr-earth font-bold">WANDR</span>
+<span class="text-wandr-terracotta text-xl leading-none font-black">.</span>
+</a>
+<div class="hidden sm:flex items-center gap-1.5 px-2.5 py-1 bg-emerald-50 text-emerald-700 text-xs font-mono font-medium rounded-full border border-emerald-200/60"><span class="w-2 h-2 rounded-full bg-emerald-500"></span>Spiti Valley &amp; Himalayas</div>
+</div>
+<!-- Navigation Links -->
+<nav class="hidden lg:flex items-center gap-7 text-[13px] font-medium tracking-wide text-wandr-stone">
+<a class="hover:text-wandr-earth transition-colors" href="#">Home</a>
+<a class="text-wandr-terracotta font-semibold hover:text-wandr-earth transition-colors flex items-center gap-1" href="#">
+          Plan Expedition
+          <span class="w-1.5 h-1.5 rounded-full bg-wandr-terracotta inline-block"></span>
+</a>
+<a class="hover:text-wandr-earth transition-colors" href="#">Flight Deck</a>
+<a class="hover:text-wandr-earth transition-colors" href="#">Workspace</a>
+<a class="hover:text-wandr-earth transition-colors" href="#">Itinerary</a>
+<a class="hover:text-wandr-earth transition-colors" href="#">Disruption Lab</a>
+</nav>
+<!-- Lord K. Stirling Profile -->
+<div class="flex items-center gap-3.5 pl-4 border-l border-stone-200/80">
+<div class="flex flex-col text-right">
+<span class="text-xs font-bold text-wandr-earth leading-none">Lord K. Stirling</span>
+<span class="text-[10px] font-mono text-wandr-muted mt-0.5">Traveler Member</span>
+</div>
+<div class="relative">
+<div class="w-9 h-9 rounded-full bg-gradient-to-tr from-amber-600 via-rose-500 to-indigo-600 p-[2px] shadow-sm">
+<div class="w-full h-full rounded-full bg-wandr-sand flex items-center justify-center text-xs font-semibold text-wandr-earth uppercase font-mono">
+              LS
+            </div>
+</div>
+<span class="absolute bottom-0 right-0 w-2.5 h-2.5 bg-emerald-500 border-2 border-white rounded-full"></span>
+</div>
+</div>
+</div>
+</header>
+<!-- END: MainHeader -->
+<!-- BEGIN: MainContent -->
+<main class="flex-1 flex flex-col justify-between max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-6">
+<!-- Top Return & Ambient Status Bar -->
+<div class="flex items-center justify-between mb-4">
+<a class="group inline-flex items-center text-xs font-medium text-wandr-stone hover:text-wandr-earth transition-colors" href="#">
+<svg class="w-4 h-4 mr-1.5 transition-transform group-hover:-translate-x-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+<path d="10 19l-7-7m0 0l7-7m-7 7h18" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"></path>
+</svg>
+        Back to Planner Workspace
+      </a>
+<!-- State Indicator Pill -->
+<div class="flex items-center gap-2.5 bg-white/80 border border-stone-200/80 px-3.5 py-1.5 rounded-full text-xs font-medium shadow-sm"><span class="flex h-2 w-2 relative"><span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-wandr-terracotta opacity-75"></span><span class="relative inline-flex rounded-full h-2 w-2 bg-wandr-terracotta"></span></span><span class="text-wandr-stone text-xs font-medium">AI Travel Assistant</span><span class="text-stone-300">•</span><span class="text-wandr-violet font-semibold text-xs">Voice &amp; Chat Supported (Hindi / English)</span></div>
+</div>
+<!-- Center Stage Grid: Conversational Orb & Real-Time Constraints HUD -->
+<div class="grid grid-cols-1 lg:grid-cols-12 gap-8 items-center flex-1 my-auto">
+<!-- Primary Conversational Canvas (8 Cols) -->
+<section class="lg:col-span-8 flex flex-col items-center justify-center text-center relative py-6 lg:py-8" data-purpose="voice-conversational-hub">
+<!-- Center Interactive AI Voice Orb (Layered Gradients & Waveforms) -->
+<div class="relative flex items-center justify-center mb-8" data-purpose="ai-voice-orb-display">
+<!-- Ambient Glow Background -->
+<div class="absolute w-72 h-72 rounded-full bg-gradient-to-tr from-purple-500/20 via-sky-400/15 to-amber-500/20 blur-3xl -z-10 animate-orb"></div>
+<!-- Outer Orb Shell with Dynamic Ring & Liquid Gradient Inspired by Reference Images -->
+<div class="relative w-44 h-44 sm:w-52 sm:h-52 rounded-full p-1 bg-gradient-to-b from-white/90 via-purple-100/60 to-purple-200/40 border border-purple-200/50 shadow-glowing-orb flex items-center justify-center">
+<!-- Internal Liquid Orb -->
+<div class="w-full h-full rounded-full bg-gradient-to-tr from-slate-900 via-indigo-950 to-purple-900 overflow-hidden relative flex items-center justify-center shadow-inner">
+<!-- Reflected Light Swirl -->
+<div class="absolute inset-0 bg-gradient-to-br from-indigo-400/35 via-violet-600/40 to-transparent mix-blend-screen opacity-90 animate-orb"></div>
+<!-- Centered Fluid Core Waveform -->
+<div class="relative z-10 flex items-center justify-center gap-1.5 px-6 py-4">
+<span class="wave-bar bg-sky-300"></span>
+<span class="wave-bar bg-indigo-300"></span>
+<span class="wave-bar bg-purple-300"></span>
+<span class="wave-bar bg-violet-400"></span>
+<span class="wave-bar bg-amber-200"></span>
+<span class="wave-bar bg-rose-300"></span>
+<span class="wave-bar bg-violet-300"></span>
+<span class="wave-bar bg-sky-200"></span>
+<span class="wave-bar bg-blue-300"></span>
+<span class="wave-bar bg-purple-200"></span>
+</div>
+<!-- Specular Glass Highlight -->
+<div class="absolute -top-12 -left-8 w-36 h-36 bg-gradient-to-b from-white/30 to-transparent rounded-full transform -rotate-45 pointer-events-none"></div>
+</div>
+<!-- Pulsing Listening Beacon Pill -->
+<div class="absolute -bottom-3.5 bg-wandr-earth text-white font-mono text-[11px] font-medium tracking-wider px-3.5 py-1 rounded-full shadow-lg flex items-center gap-2 border border-white/20"><span class="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>Listening to you...</div>
+</div>
+</div>
+<!-- Conversational Prompt Message -->
+<div class="max-w-xl mx-auto mb-6 px-2">
+<h2 class="text-2xl sm:text-3xl font-semibold text-wandr-earth tracking-tight mb-2">
+            Where do you want to explore?
+          </h2>
+<p class="text-wandr-stone text-sm sm:text-base leading-relaxed">
+            Tell me your dream destination, budget envelope, travel dates, or pace in free-form voice. Speaking English or Hindi supported natively.
+          </p>
+</div>
+<!-- Quick Prompt Chips -->
+<div class="flex flex-wrap items-center justify-center gap-2 max-w-2xl" data-purpose="sample-voice-prompts">
+<button class="group text-xs text-wandr-earth bg-white/90 hover:bg-white hover:border-wandr-terracotta/40 px-3.5 py-2 rounded-xl border border-stone-200 shadow-sm transition-all duration-150 flex items-center gap-2" type="button">
+<span class="text-wandr-terracotta">✦</span>
+<span class="">4 days in Rishikesh, ₹18,000, 2 people, ashram homestay and river yoga</span>
+</button>
+<button class="group text-xs text-wandr-earth bg-white/90 hover:bg-white hover:border-wandr-terracotta/40 px-3.5 py-2 rounded-xl border border-stone-200 shadow-sm transition-all duration-150 flex items-center gap-2" type="button">
+<span class="text-amber-600">✦</span>
+<span class="">5 days in Spiti Valley, ₹30,000, 2 people, high altitude passes and homestays</span>
+</button>
+<button class="group text-xs text-wandr-earth bg-white/90 hover:bg-white hover:border-wandr-terracotta/40 px-3.5 py-2 rounded-xl border border-stone-200 shadow-sm transition-all duration-150 flex items-center gap-2" type="button">
+<span class="text-violet-600">✦</span>
+<span class="">7 days Ladakh Zanskar, ₹45,000, photography &amp; monasteries</span>
+</button>
+<button class="group text-xs text-wandr-earth bg-white/90 hover:bg-white hover:border-wandr-terracotta/40 px-3.5 py-2 rounded-xl border border-stone-200 shadow-sm transition-all duration-150 flex items-center gap-2" type="button">
+<span class="text-emerald-600">✦</span>
+<span class="">Weekend off-grid in Tirthan Valley, ₹12,000, trout fishing &amp; quiet cabins</span>
+</button>
+</div>
+</section>
+<!-- Extracted Constraints HUD Drawer (4 Cols) -->
+<aside class="lg:col-span-4" data-purpose="extracted-constraints-hud"><div class="bg-white/95 rounded-2xl p-6 border border-stone-200/90 shadow-card-lift relative overflow-hidden backdrop-blur-sm"><div class="flex items-center justify-between pb-4 border-b border-stone-100"><div class="flex items-center gap-2"><div class="w-2.5 h-2.5 rounded-full bg-violet-600"></div><h3 class="text-xs tracking-wider font-bold text-wandr-earth uppercase">Trip Summary</h3></div><span class="px-2 py-0.5 rounded text-[10px] font-medium bg-purple-50 text-purple-700 border border-purple-200/60">Live Preview</span></div><div class="divide-y divide-stone-100 text-xs mt-3"><div class="py-3 flex items-start justify-between"><div><span class="text-wandr-muted block text-[11px]">DESTINATION</span><span class="font-semibold text-wandr-earth text-sm">Rishikesh, Uttarakhand</span><span class="text-[11px] text-wandr-stone block">Peaceful River Valley</span></div></div><div class="py-3 flex items-start justify-between"><div><span class="text-wandr-muted block text-[11px]">BUDGET</span><span class="font-bold text-wandr-terracotta text-sm">₹18,000</span><span class="text-[11px] text-wandr-stone block">Estimated total</span></div></div><div class="py-3 flex items-start justify-between"><div><span class="text-wandr-muted block text-[11px]">TRAVELERS</span><span class="font-semibold text-wandr-earth">2 Guests</span><span class="text-[11px] text-wandr-stone block">Double Room / Homestay</span></div></div><div class="py-3 flex items-start justify-between"><div><span class="text-wandr-muted block text-[11px]">DURATION</span><span class="font-semibold text-wandr-earth">4 Days / 3 Nights</span></div></div><div class="py-3 flex items-start justify-between"><div><span class="text-wandr-muted block text-[11px]">TRAVEL STYLE</span><span class="font-semibold text-wandr-earth">Peaceful retreat, river meditation, yoga</span></div></div></div><div class="mt-4 pt-3 border-t border-stone-100 bg-stone-50/70 -mx-6 -mb-6 p-5"><div class="flex items-center justify-between text-xs mb-2"><span class="text-wandr-earth font-medium text-xs">Trip Details Ready</span><span class="text-emerald-700 font-bold text-xs">Ready</span></div><p class="text-xs text-wandr-stone font-normal leading-relaxed">Everything is verified and ready for your customized itinerary.</p></div></div></aside>
+</div>
+<!-- BEGIN: Multimodal Omnibox Input Bar -->
+<div class="w-full max-w-4xl mx-auto pt-6 pb-2" data-purpose="multimodal-omnibox-container">
+<div class="bg-white rounded-2xl p-2.5 sm:p-3 shadow-card-lift border border-stone-200/90 flex flex-col md:flex-row items-stretch md:items-center gap-3">
+<!-- Left Accessory Controls: Attachment & Language Switch -->
+<div class="flex items-center gap-1.5 pl-1.5 self-start md:self-auto">
+<!-- Attachment Button -->
+<button class="p-2 text-wandr-stone hover:text-wandr-earth hover:bg-stone-100 rounded-xl transition-colors" title="Attach itinerary document or inspiration photo" type="button">
+<svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+<path d="M12 4v16m8-8H4" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"></path>
+</svg>
+</button>
+<!-- Language Switcher Pill -->
+<button class="text-xs font-mono font-bold px-2.5 py-1.5 rounded-lg bg-stone-100 hover:bg-stone-200/80 text-wandr-earth border border-stone-200 flex items-center gap-1" type="button">
+<span class="">EN</span>
+<span class="text-stone-400">/</span>
+<span class="text-wandr-terracotta">HI</span>
+</button>
+</div>
+<!-- Editable Input / Transcript Preview matching the design pattern -->
+<div class="flex-1 min-w-0 px-2 py-1 flex items-center">
+<div class="w-full font-mono text-xs sm:text-[13px] text-wandr-earth tracking-tight overflow-x-auto whitespace-nowrap scrollbar-none flex items-center">
+<span class="text-wandr-violet font-bold mr-1.5 select-none cursor-blink">|</span>
+<span class="text-slate-800 font-medium">4 days in Rishikesh, ₹18,000, 2 people, ashram homestay and river yoga</span>
+<span class="text-stone-400 font-sans ml-2 text-xs italic">(or speak in Hindi/English)</span>
+</div>
+</div>
+<!-- Right Action Cluster: Active Voice Button + Synthesize Trigger -->
+<div class="flex items-center gap-2 justify-end">
+<!-- Pulsing Voice Microphone Button -->
+<button class="relative group p-2.5 rounded-xl bg-gradient-to-tr from-violet-600 to-indigo-500 text-white shadow-md animate-ripple flex items-center justify-center" title="Microphone Active - Tap to Mute" type="button">
+<!-- Active Sound Wave Micro-Icon -->
+<div class="flex items-center gap-0.5 h-4">
+<span class="w-0.5 h-3 bg-white rounded-full animate-pulse"></span>
+<span class="w-0.5 h-4 bg-white rounded-full"></span>
+<span class="w-0.5 h-2 bg-white rounded-full animate-pulse"></span>
+<span class="w-0.5 h-3.5 bg-white rounded-full"></span>
+</div>
+</button>
+<!-- Synthesize Action Button -->
+<button class="inline-flex items-center justify-center gap-2 px-5 py-2.5 bg-wandr-earth hover:bg-black text-white font-medium text-xs sm:text-sm rounded-xl transition shadow hover:shadow-md whitespace-nowrap" type="button"><span class="">Create My Itinerary</span><svg class="w-4 h-4 text-amber-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M14 5l7 7m0 0l-7 7m7-7H3" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"></path></svg></button>
+</div>
+</div>
+<!-- Security and Privacy Footnote -->
+<div class="flex items-center justify-between text-[11px] font-mono text-wandr-muted px-3 mt-2"><span class="flex items-center gap-1.5"><svg class="w-3.5 h-3.5 text-stone-400" fill="currentColor" viewBox="0 0 20 20"><path clip-rule="evenodd" d="M5 9V7a5 5 0 0110 0v2a2 2 0 012 2v5a2 2 0 01-2 2H5a2 2 0 01-2-2v-5a2 2 0 012-2zm8-2v2H7V7a3 3 0 016 0z" fill-rule="evenodd"></path></svg>Tap microphone or press Space to speak • Private &amp; Secure</span><span class="hidden sm:inline text-stone-400">Your information is kept private</span></div>
+</div>
+<!-- END: Multimodal Omnibox Input Bar -->
+</main>
+<!-- END: MainContent -->
+<!-- BEGIN: Interaction Handling Script -->
+<script data-purpose="voice-input-simulation">
+    document.addEventListener('DOMContentLoaded', () => {
+      // Allow clicking quick suggestion prompts to load text into the omnibox display
+      const chips = document.querySelectorAll('[data-purpose="sample-voice-prompts"] button');
+      const inputTranscript = document.querySelector('[data-purpose="multimodal-omnibox-container"] span.text-slate-800');
+
+      if (chips && inputTranscript) {
+        chips.forEach(chip => {
+          chip.addEventListener('click', () => {
+            const promptText = chip.querySelector('span:last-child').textContent.trim();
+            inputTranscript.textContent = promptText;
+          });
+        });
+      }
+    });
+  </script>
+<!-- END: Interaction Handling Script -->
+
+
+</body></html>

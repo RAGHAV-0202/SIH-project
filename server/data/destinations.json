@@ -1,0 +1,214 @@
+{
+  "destinations": [
+    {
+      "id": "D-SPT",
+      "name": "Spiti Valley",
+      "state": "Himachal Pradesh",
+      "nearest_city": "Manali",
+      "description": "A cold desert mountain valley high in the Himalayas, Spiti is one of India's least populated and most pristine regions. Ancient Buddhist monasteries cling to cliffsides, and the stark, dramatic landscapes feel like another planet.",
+      "best_season": "June to September",
+      "altitude_meters": 3800,
+      "tags": ["nature", "adventure", "culture", "photography"],
+      "outdoor_activities": [
+        { "name": "Key Monastery Visit", "duration_hours": 3, "cost_inr": 0, "category": "culture", "description": "Visit the 1000-year-old Key Monastery perched at 4,166m" },
+        { "name": "Chandratal Lake Trek", "duration_hours": 6, "cost_inr": 500, "category": "nature", "description": "Trek to the crescent-shaped Moon Lake at 4,300m" },
+        { "name": "Hikkim Post Office Visit", "duration_hours": 2, "cost_inr": 100, "category": "culture", "description": "Send a postcard from the world's highest post office" },
+        { "name": "Pin Valley National Park", "duration_hours": 5, "cost_inr": 200, "category": "nature", "description": "Spot the elusive snow leopard and ibex in this cold desert park" },
+        { "name": "Dhankar Monastery & Lake", "duration_hours": 4, "cost_inr": 0, "category": "culture", "description": "Explore the precarious cliffside monastery and hike to Dhankar Lake" },
+        { "name": "Langza Fossil Hunting", "duration_hours": 3, "cost_inr": 0, "category": "adventure", "description": "Hunt for marine fossils in the village of Langza at 4,400m — yes, sea fossils in the mountains" },
+        { "name": "Kibber-Chicham Bridge Walk", "duration_hours": 2, "cost_inr": 0, "category": "adventure", "description": "Walk across Asia's highest bridge connecting Kibber and Chicham" },
+        { "name": "Spiti River Rafting", "duration_hours": 3, "cost_inr": 1500, "category": "adventure", "description": "White water rafting in the glacial Spiti River" }
+      ],
+      "indoor_activities": [
+        { "name": "Buddhist Meditation Session", "duration_hours": 2, "cost_inr": 0, "category": "culture", "description": "Join monks for a guided meditation at Key Monastery" },
+        { "name": "Spitian Cooking Class", "duration_hours": 3, "cost_inr": 300, "category": "food", "description": "Learn to make thukpa, momos, and butter tea with a local family" },
+        { "name": "Yak Wool Weaving Workshop", "duration_hours": 2, "cost_inr": 200, "category": "culture", "description": "Learn traditional yak wool weaving from local artisans" },
+        { "name": "Local Café & Chhang Tasting", "duration_hours": 1.5, "cost_inr": 150, "category": "food", "description": "Try the local barley beer (chhang) and Spitian snacks at a Kaza café" }
+      ],
+      "local_food_specialties": ["Thukpa (noodle soup)", "Momos (dumplings)", "Chhang (barley beer)", "Butter Tea", "Siddu (stuffed bread)", "Aktori (Spitian pancake)"],
+      "estimated_daily_food_cost_inr": 500,
+      "estimated_daily_local_travel_inr": 300
+    },
+    {
+      "id": "D-CRG",
+      "name": "Coorg",
+      "state": "Karnataka",
+      "nearest_city": "Mysore",
+      "description": "Known as the 'Scotland of India', Coorg (Kodagu) is a lush hill district famous for coffee plantations, misty hills, spice gardens, and the martial Kodava culture. A paradise for nature lovers and food enthusiasts.",
+      "best_season": "October to March",
+      "altitude_meters": 1150,
+      "tags": ["nature", "food", "culture", "relaxation"],
+      "outdoor_activities": [
+        { "name": "Abbey Falls Visit", "duration_hours": 2, "cost_inr": 50, "category": "nature", "description": "Walk through coffee plantations to reach this stunning waterfall" },
+        { "name": "Tadiandamol Peak Trek", "duration_hours": 6, "cost_inr": 300, "category": "adventure", "description": "Trek to the highest peak in Coorg at 1,748m through shola forests" },
+        { "name": "Dubare Elephant Camp", "duration_hours": 3, "cost_inr": 500, "category": "nature", "description": "Interact with elephants — bathe and feed them at the Cauvery riverside camp" },
+        { "name": "Coffee Plantation Walk", "duration_hours": 2, "cost_inr": 200, "category": "food", "description": "Guided tour of a working coffee estate — from bean to cup" },
+        { "name": "Raja's Seat Sunset", "duration_hours": 1.5, "cost_inr": 20, "category": "nature", "description": "Watch a spectacular sunset from this hilltop garden where Kodava kings once sat" },
+        { "name": "Nagarhole Safari", "duration_hours": 4, "cost_inr": 800, "category": "nature", "description": "Jeep safari in Nagarhole National Park — spot tigers, elephants, and bison" },
+        { "name": "Cauvery River Rafting", "duration_hours": 2, "cost_inr": 600, "category": "adventure", "description": "White water rafting on the River Cauvery" },
+        { "name": "Iruppu Falls Trek", "duration_hours": 3, "cost_inr": 100, "category": "nature", "description": "Trek through the Brahmagiri forest to sacred Iruppu Falls" }
+      ],
+      "indoor_activities": [
+        { "name": "Kodava Cooking Class", "duration_hours": 3, "cost_inr": 500, "category": "food", "description": "Learn to make authentic pandi curry, akki roti, and Coorg-style biryani" },
+        { "name": "Coffee Roasting Workshop", "duration_hours": 2, "cost_inr": 300, "category": "food", "description": "Hands-on workshop on roasting, grinding, and brewing estate coffee" },
+        { "name": "Spice Garden Tour", "duration_hours": 1.5, "cost_inr": 150, "category": "food", "description": "Walk through a spice garden — identify pepper, cardamom, cinnamon, and cloves" },
+        { "name": "Madikeri Fort & Museum", "duration_hours": 2, "cost_inr": 30, "category": "culture", "description": "Explore the historic Madikeri Fort built by Muddu Raja and its museum" },
+        { "name": "Bylakuppe Tibetan Settlement", "duration_hours": 3, "cost_inr": 0, "category": "culture", "description": "Visit the Golden Temple and Tibetan monasteries in India's second-largest Tibetan settlement" }
+      ],
+      "local_food_specialties": ["Pandi Curry (pork curry)", "Kadambuttu (steamed rice balls)", "Akki Roti (rice flatbread)", "Bamboo Shoot Curry", "Coorgi Biryani", "Filter Coffee", "Honey Wine"],
+      "estimated_daily_food_cost_inr": 600,
+      "estimated_daily_local_travel_inr": 400
+    },
+    {
+      "id": "D-MEG",
+      "name": "Meghalaya",
+      "state": "Meghalaya",
+      "nearest_city": "Guwahati",
+      "description": "The 'Abode of Clouds' is one of India's wettest and most magical states. Known for living root bridges, crystal-clear rivers, dramatic waterfalls, and the unique matrilineal Khasi culture. Truly one of India's hidden gems.",
+      "best_season": "October to May",
+      "altitude_meters": 1500,
+      "tags": ["nature", "adventure", "culture", "photography"],
+      "outdoor_activities": [
+        { "name": "Double Decker Living Root Bridge Trek", "duration_hours": 5, "cost_inr": 200, "category": "nature", "description": "Trek 3,500 steps down to see the iconic double-decker living root bridge in Nongriat" },
+        { "name": "Dawki River Boating", "duration_hours": 2, "cost_inr": 500, "category": "nature", "description": "Boat on the crystal-clear Umngot River — boats appear to float in mid-air" },
+        { "name": "Mawlynnong Village Walk", "duration_hours": 2, "cost_inr": 100, "category": "culture", "description": "Explore Asia's cleanest village and its sky walk viewpoint" },
+        { "name": "Nohkalikai Falls Viewpoint", "duration_hours": 1.5, "cost_inr": 50, "category": "nature", "description": "India's tallest plunge waterfall at 340m, with a stunning turquoise pool" },
+        { "name": "Mawsmai Cave Exploration", "duration_hours": 1.5, "cost_inr": 30, "category": "adventure", "description": "Explore limestone caves with stunning stalactite and stalagmite formations" },
+        { "name": "David Scott Trail Trek", "duration_hours": 6, "cost_inr": 0, "category": "adventure", "description": "Trek the historic 16km trail through rolling hills, forests, and streams" },
+        { "name": "Laitlum Canyons", "duration_hours": 3, "cost_inr": 0, "category": "nature", "description": "Walk along the edge of dramatic canyons — 'laitlum' means 'end of hills' in Khasi" },
+        { "name": "Umiam Lake Kayaking", "duration_hours": 2, "cost_inr": 400, "category": "adventure", "description": "Kayak on the serene Umiam Lake surrounded by East Khasi Hills" }
+      ],
+      "indoor_activities": [
+        { "name": "Khasi Cooking Class", "duration_hours": 3, "cost_inr": 400, "category": "food", "description": "Learn to make jadoh, tungrymbai, and doh khleh with a Khasi family" },
+        { "name": "Don Bosco Museum", "duration_hours": 2, "cost_inr": 100, "category": "culture", "description": "Explore 7 floors showcasing Northeast India's indigenous cultures" },
+        { "name": "Bamboo & Cane Craft Workshop", "duration_hours": 2, "cost_inr": 250, "category": "culture", "description": "Learn traditional Khasi bamboo and cane weaving techniques" },
+        { "name": "Shillong Music Scene", "duration_hours": 2, "cost_inr": 300, "category": "culture", "description": "Experience why Shillong is called 'Rock Capital of India' at a local live music café" },
+        { "name": "Iewduh (Bara Bazaar) Food Tour", "duration_hours": 2, "cost_inr": 200, "category": "food", "description": "Guided food tour of the largest market in Northeast India" }
+      ],
+      "local_food_specialties": ["Jadoh (Khasi red rice with meat)", "Tungrymbai (fermented soybean)", "Doh Khleh (pork salad)", "Nakham Bitchi (dry fish chutney)", "Ki Kpu (sticky rice)", "Kwai (betel nut)"],
+      "estimated_daily_food_cost_inr": 550,
+      "estimated_daily_local_travel_inr": 500
+    },
+    {
+      "id": "D-RSK",
+      "name": "Rishikesh",
+      "state": "Uttarakhand",
+      "nearest_city": "Dehradun",
+      "description": "Nestled in the Himalayan foothills along the holy Ganges, Rishikesh is the yoga capital of the world, combining spiritual ashrams, cliffside meditation, and high-adrenaline river rafting.",
+      "best_season": "September to April",
+      "altitude_meters": 372,
+      "tags": ["spirituality", "adventure", "nature", "yoga"],
+      "outdoor_activities": [
+        { "name": "Neer Garh Waterfall Hike", "duration_hours": 3, "cost_inr": 50, "category": "nature", "place_type": "Hidden Gem", "description": "Multi-tier waterfall hike through quiet mountain trails" },
+        { "name": "Beatles Ashram Exploration", "duration_hours": 2, "cost_inr": 150, "category": "culture", "place_type": "Hidden Gem", "description": "Abandoned ashram with colorful spiritual murals overlooking the Ganges" },
+        { "name": "Laxman Jhula & Suspension Bridges", "duration_hours": 2, "cost_inr": 0, "category": "culture", "place_type": "Attraction", "description": "Iconic historic suspension pedestrian bridge crossing the turquoise Ganges" },
+        { "name": "Triveni Ghat Evening Ganga Aarti", "duration_hours": 2, "cost_inr": 0, "category": "culture", "place_type": "Attraction", "description": "Sacred twilight prayer ceremony with floating oil lamps" },
+        { "name": "Shivpuri River Rafting", "duration_hours": 3, "cost_inr": 1000, "category": "adventure", "place_type": "Attraction", "description": "White water rapids down the holy Ganges" }
+      ],
+      "indoor_activities": [
+        { "name": "Ganga View Ashram Yoga & Meditation", "duration_hours": 2, "cost_inr": 200, "category": "culture", "place_type": "Hidden Gem", "description": "Authentic Himalayan hatha yoga session with local acharyas" },
+        { "name": "Ayurvedic Herbal Cooking Workshop", "duration_hours": 2.5, "cost_inr": 350, "category": "food", "place_type": "Hidden Gem", "description": "Learn traditional sattvic cooking with mountain herbs" }
+      ],
+      "local_food_specialties": ["Garhwali Kafuli", "Aloo ke Gutke", "Jhangora Kheer", "Masala Chai", "Herbal Kadha"],
+      "estimated_daily_food_cost_inr": 450,
+      "estimated_daily_local_travel_inr": 350,
+      "cab_fare_inr": 500
+    },
+    {
+      "id": "D-MNL",
+      "name": "Manali",
+      "state": "Himachal Pradesh",
+      "nearest_city": "Kullu",
+      "description": "Surrounded by towering cedar forests, snow-capped peaks, and apple orchards in the Beas Valley, Manali serves as the gateway to the trans-Himalayas with vibrant trails and hot springs.",
+      "best_season": "October to June",
+      "altitude_meters": 2050,
+      "tags": ["mountains", "adventure", "nature", "culture"],
+      "outdoor_activities": [
+        { "name": "Jogini Waterfall Trek", "duration_hours": 3, "cost_inr": 0, "category": "nature", "place_type": "Hidden Gem", "description": "Scenic cliffside trail to a cascading mountain waterfall above Vashisht" },
+        { "name": "Vashisht Hot Sulfur Springs", "duration_hours": 2, "cost_inr": 0, "category": "nature", "place_type": "Hidden Gem", "description": "Natural therapeutic mineral springs inside an ancient temple complex" },
+        { "name": "Solang Valley Adventure Zone", "duration_hours": 4, "cost_inr": 800, "category": "adventure", "place_type": "Attraction", "description": "Hub for paragliding, zorbing, and alpine meadow vistas" },
+        { "name": "Hadimba Temple & Cedar Grove", "duration_hours": 1.5, "cost_inr": 30, "category": "culture", "place_type": "Attraction", "description": "Historic 1553 pagoda-style wooden temple nestled in towering deodars" }
+      ],
+      "indoor_activities": [
+        { "name": "Himachali Siddu & Trout Cooking Session", "duration_hours": 2.5, "cost_inr": 400, "category": "food", "place_type": "Hidden Gem", "description": "Learn to make steamed stuffed siddu and local freshwater trout" },
+        { "name": "Traditional Kullu Shawl Weaving", "duration_hours": 2, "cost_inr": 200, "category": "culture", "place_type": "Hidden Gem", "description": "Observe master weavers creating geometric Kullu borders" }
+      ],
+      "local_food_specialties": ["Siddu", "Trout Fish", "Dham", "Kullu Apple Crumble", "Rhododendron Juice"],
+      "estimated_daily_food_cost_inr": 500,
+      "estimated_daily_local_travel_inr": 400,
+      "cab_fare_inr": 600
+    },
+    {
+      "id": "D-KRL",
+      "name": "Kerala",
+      "state": "Kerala",
+      "nearest_city": "Kochi",
+      "description": "God's Own Country, famed for tranquil emerald backwaters, spice-scented hill stations, tea plantations, and secluded coastal palm beaches.",
+      "best_season": "September to March",
+      "altitude_meters": 50,
+      "tags": ["backwaters", "nature", "relaxation", "culture", "food"],
+      "outdoor_activities": [
+        { "name": "Marari Secluded Beach Walk", "duration_hours": 3, "cost_inr": 0, "category": "nature", "place_type": "Hidden Gem", "description": "Quiet, pristine coconut-lined beach far from tourist crowds" },
+        { "name": "Edakkal Caves Petroglyph Hike", "duration_hours": 3, "cost_inr": 100, "category": "adventure", "place_type": "Hidden Gem", "description": "Climb Ambukuthi Hills to inspect prehistoric cave carvings" },
+        { "name": "Alleppey Backwater Canoe Tour", "duration_hours": 4, "cost_inr": 700, "category": "nature", "place_type": "Attraction", "description": "Glide through narrow village canals on an eco-friendly wooden canoe" },
+        { "name": "Munnar Tea Estate Exploration", "duration_hours": 3, "cost_inr": 200, "category": "nature", "place_type": "Attraction", "description": "Walk undulating green carpets of colonial tea estates" }
+      ],
+      "indoor_activities": [
+        { "name": "Keralite Sadya Feast & Cooking", "duration_hours": 3, "cost_inr": 450, "category": "food", "place_type": "Hidden Gem", "description": "Learn 12 authentic dishes served on fresh plantain leaf" },
+        { "name": "Kathakali & Kalaripayattu Performance", "duration_hours": 2, "cost_inr": 300, "category": "culture", "place_type": "Attraction", "description": "Witness Kerala's classical dance-drama and martial arts" }
+      ],
+      "local_food_specialties": ["Appam with Stew", "Karimeen Pollichathu", "Kerala Parotta", "Payasam", "Puttu and Kadala"],
+      "estimated_daily_food_cost_inr": 600,
+      "estimated_daily_local_travel_inr": 450,
+      "cab_fare_inr": 700
+    },
+    {
+      "id": "D-JPR",
+      "name": "Jaipur",
+      "state": "Rajasthan",
+      "nearest_city": "Jaipur",
+      "description": "The Pink City of royalty, fortified hilltop palaces, vibrant artisan bazaars, and architectural wonders carved from pink sandstone.",
+      "best_season": "October to March",
+      "altitude_meters": 431,
+      "tags": ["heritage", "history", "architecture", "food", "shopping"],
+      "outdoor_activities": [
+        { "name": "Panna Meena ka Kund Stepwell", "duration_hours": 1.5, "cost_inr": 0, "category": "culture", "place_type": "Hidden Gem", "description": "16th-century geometric symmetrical stepwell near Amer" },
+        { "name": "Galtaji Monkey Temple & Springs", "duration_hours": 2.5, "cost_inr": 50, "category": "culture", "place_type": "Hidden Gem", "description": "Ancient temple complex built into a mountain pass with holy water kunds" },
+        { "name": "Amber Fort & Palace Walk", "duration_hours": 3.5, "cost_inr": 200, "category": "culture", "place_type": "Attraction", "description": "Sprawling hilltop fort with Maota Lake reflection and Sheesh Mahal" },
+        { "name": "Hawa Mahal & Pink City Bazaars", "duration_hours": 2, "cost_inr": 50, "category": "culture", "place_type": "Attraction", "description": "Iconic 953-window façade of winds and vibrant textile lanes" }
+      ],
+      "indoor_activities": [
+        { "name": "Rajasthani Block Printing Workshop", "duration_hours": 2.5, "cost_inr": 350, "category": "culture", "place_type": "Hidden Gem", "description": "Hands-on natural block printing in Sanganer with local craftsmen" },
+        { "name": "Dal Baati Churma Masterclass", "duration_hours": 2.5, "cost_inr": 400, "category": "food", "place_type": "Hidden Gem", "description": "Authentic Marwari ghee-roasted baati preparation" }
+      ],
+      "local_food_specialties": ["Dal Baati Churma", "Pyaaz Kachori", "Ghevar", "Ker Sangri", "Laal Maas", "Masala Chai"],
+      "estimated_daily_food_cost_inr": 500,
+      "estimated_daily_local_travel_inr": 350,
+      "cab_fare_inr": 500
+    },
+    {
+      "id": "D-GOA",
+      "name": "Goa",
+      "state": "Goa",
+      "nearest_city": "Panaji",
+      "description": "Beyond the crowded beaches lies Portuguese colonial heritage, quiet river islands, mangrove backwaters, spice plantations, and secluded lagoons.",
+      "best_season": "November to February",
+      "altitude_meters": 10,
+      "tags": ["beach", "culture", "relaxation", "food", "heritage"],
+      "outdoor_activities": [
+        { "name": "Divar Island Cycle Exploration", "duration_hours": 3.5, "cost_inr": 200, "category": "nature", "place_type": "Hidden Gem", "description": "Cross Mandovi River by ferry to cycle through sleepy Portuguese villages" },
+        { "name": "Arambol Sweet Water Lagoon Hike", "duration_hours": 2.5, "cost_inr": 0, "category": "nature", "place_type": "Hidden Gem", "description": "Trek past rocky cliffs to a secluded freshwater lake steps from the sea" },
+        { "name": "Old Goa Basilica of Bom Jesus", "duration_hours": 2, "cost_inr": 0, "category": "culture", "place_type": "Attraction", "description": "UNESCO World Heritage Baroque church housing the relics of St. Francis Xavier" },
+        { "name": "Baga / Anjuna Coast Walk", "duration_hours": 2.5, "cost_inr": 0, "category": "nature", "place_type": "Attraction", "description": "Vibrant coastal stretch with beach shacks and sunset viewpoints" }
+      ],
+      "indoor_activities": [
+        { "name": "Goan Portuguese Cooking & Feni Tasting", "duration_hours": 2.5, "cost_inr": 450, "category": "food", "place_type": "Hidden Gem", "description": "Prepare authentic fish caldine, vindaloo, and bebinca" },
+        { "name": "Fontainhas Latin Quarter Heritage Walk", "duration_hours": 2, "cost_inr": 150, "category": "culture", "place_type": "Hidden Gem", "description": "Guided walk through Portuguese heritage villas, azulejo tiles, and bakeries" }
+      ],
+      "local_food_specialties": ["Goan Fish Curry", "Prawn Balchão", "Pork Vindaloo", "Poi Bread", "Bebinca", "Feni"],
+      "estimated_daily_food_cost_inr": 650,
+      "estimated_daily_local_travel_inr": 450,
+      "cab_fare_inr": 800
+    }
+  ]
+}

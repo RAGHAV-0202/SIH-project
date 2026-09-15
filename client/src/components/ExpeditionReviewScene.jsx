@@ -11,7 +11,49 @@ export default function ExpeditionReviewScene({
   onConfirm,
   onBack,
 }) {
-  const transitCost = (selectedTransport?.price_inr || 2400) * people;
+  const [needHomeCab, setNeedHomeCab] = React.useState(false);
+  const [needArrivalCab, setNeedArrivalCab] = React.useState(true);
+  const [restPacingHours, setRestPacingHours] = React.useState(2.5); // 1 | 2.5 | 4
+
+  const depTime = selectedTransport?.departure || '07:00 AM';
+  const arrTime = selectedTransport?.arrival || '01:30 PM';
+  const operatorName = selectedTransport?.operator || 'Direct Transit';
+
+  // Calculate recommended home departure time (approx 2h 45m before flight, or 1h 30m before train/bus)
+  const isFlight = selectedTransport?.mode?.includes('flight') || operatorName.toLowerCase().includes('flight') || operatorName.toLowerCase().includes('air');
+  const bufferMinutes = isFlight ? 165 : 90; // 2h45m for flight, 1.5h for rail/road
+
+  const calculateDepartureTime = (timeStr, subMinutes) => {
+    try {
+      const match = timeStr.match(/(\d{1,2}):(\d{2})\s*(AM|PM)?/i);
+      if (!match) return '04:15 AM';
+      let hours = parseInt(match[1], 10);
+      const minutes = parseInt(match[2], 10);
+      const meridiem = match[3] ? match[3].toUpperCase() : null;
+
+      if (meridiem === 'PM' && hours < 12) hours += 12;
+      if (meridiem === 'AM' && hours === 12) hours = 0;
+
+      let totalMins = hours * 60 + minutes - subMinutes;
+      if (totalMins < 0) totalMins += 24 * 60;
+
+      let depH = Math.floor(totalMins / 60);
+      const depM = totalMins % 60;
+      const ampm = depH >= 12 ? 'PM' : 'AM';
+      depH = depH % 12 || 12;
+
+      return `${String(depH).padStart(2, '0')}:${String(depM).padStart(2, '0')} ${ampm}`;
+    } catch (e) {
+      return '04:15 AM';
+    }
+  };
+
+  const recommendedHomeLeave = calculateDepartureTime(depTime, bufferMinutes);
+
+  const homeCabCost = needHomeCab ? 650 : 0;
+  const arrivalCabCost = needArrivalCab ? 750 : 0;
+
+  const transitCost = (selectedTransport?.price_inr || 2400) * people + homeCabCost + arrivalCabCost;
   const lodgingCost = (selectedStay?.price_per_night_inr || 1200) * days;
   const activitiesCost = selectedActivities.reduce((acc, curr) => acc + (curr.cost_inr || 0), 0);
   const estimatedDailyExpenses = (days || 4) * 600 * people; // Food + local cabs
@@ -36,7 +78,7 @@ export default function ExpeditionReviewScene({
             Your Himalayan Expedition Blueprint
           </h1>
           <p className="text-xs sm:text-sm text-[#4F5D72] leading-relaxed">
-            Every leg, verified village homestay, and community experience has been checked against your safety constraints and budget envelope.
+            Every leg, verified village homestay, and door-to-door transition has been orchestrated against your safety envelope.
           </p>
         </div>
 
@@ -57,8 +99,131 @@ export default function ExpeditionReviewScene({
       {/* Bento Grid: Assembled Expedition Matrix */}
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
 
-        {/* 1. Transit & Basecamp Pillar (7 cols) */}
+        {/* 1. Transit, Concierge & Basecamp Pillar (7 cols) */}
         <div className="lg:col-span-7 flex flex-col gap-6">
+
+          {/* ─── LIVE AGENTIC CONCIERGE: Door-to-Door Transition Protocol ─── */}
+          <div className="bg-gradient-to-br from-[#FFF8F3] via-white to-[#F2F3FF] rounded-3xl p-6 border-2 border-[#FFDBC9] shadow-sm space-y-4">
+            <div className="flex items-center justify-between border-b border-[#DAE2FD]/50 pb-3">
+              <div className="flex items-center gap-2.5">
+                <div className="w-9 h-9 rounded-xl bg-[#914714] text-white flex items-center justify-center shadow-xs">
+                  <span className="material-symbols-outlined text-[20px]">door_front</span>
+                </div>
+                <div>
+                  <div className="flex items-center gap-2">
+                    <span className="text-[10px] font-extrabold uppercase text-[#914714] tracking-wider block">
+                      Autonomous Concierge
+                    </span>
+                    <span className="bg-[#82F5C1]/30 text-[#006C4A] text-[10px] font-bold px-2 py-0.2 rounded">
+                      Door-to-Door
+                    </span>
+                  </div>
+                  <h3 className="text-base font-bold text-[#131B2E]">
+                    Your Day 1 Hand-Off & Rest Pacing Protocol
+                  </h3>
+                </div>
+              </div>
+              <span className="text-xs font-bold text-[#914714] bg-[#FFDBC9]/70 px-2.5 py-1 rounded-lg">
+                ⚡ Active Assistant
+              </span>
+            </div>
+
+            {/* Step 1: Home Departure & Airport/Station Cab */}
+            <div className="p-4 bg-white rounded-2xl border border-[#DAE2FD]/70 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 shadow-xs">
+              <div className="space-y-1">
+                <div className="flex items-center gap-2">
+                  <span className="w-5 h-5 rounded-full bg-[#914714] text-white text-[11px] font-bold flex items-center justify-center">1</span>
+                  <span className="text-xs font-bold text-[#131B2E]">Departure Logistics (Home → Terminal)</span>
+                </div>
+                <p className="text-xs text-[#4F5D72] pl-7">
+                  {operatorName} departs at <strong className="text-[#131B2E]">{depTime}</strong>. Leave your home by <strong className="text-[#914714] bg-[#FFDBC9]/50 px-1.5 py-0.5 rounded font-bold">{recommendedHomeLeave}</strong> to clear traffic & security seamlessly.
+                </p>
+              </div>
+
+              <button
+                type="button"
+                onClick={() => setNeedHomeCab(!needHomeCab)}
+                className={`px-3.5 py-2 rounded-xl text-xs font-bold transition-all cursor-pointer whitespace-nowrap flex items-center gap-1.5 self-end sm:self-center shrink-0 ${
+                  needHomeCab
+                    ? 'bg-[#006C4A] text-white shadow-xs'
+                    : 'bg-[#F2F3FF] hover:bg-[#EAEDFF] text-[#131B2E] border border-[#DAE2FD]'
+                }`}
+              >
+                <span className="material-symbols-outlined text-[16px]">
+                  {needHomeCab ? 'check_circle' : 'local_taxi'}
+                </span>
+                <span>{needHomeCab ? 'Home Cab Reserved (₹650)' : '+ Book Pickup Cab'}</span>
+              </button>
+            </div>
+
+            {/* Step 2: Arrival Gate & Homestay Driver Sync */}
+            <div className="p-4 bg-white rounded-2xl border border-[#DAE2FD]/70 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 shadow-xs">
+              <div className="space-y-1">
+                <div className="flex items-center gap-2">
+                  <span className="w-5 h-5 rounded-full bg-[#006C4A] text-white text-[11px] font-bold flex items-center justify-center">2</span>
+                  <span className="text-xs font-bold text-[#131B2E]">Touchdown & Homestay Transfer</span>
+                </div>
+                <p className="text-xs text-[#4F5D72] pl-7">
+                  Arrival at <strong className="text-[#131B2E]">{arrTime}</strong>. Pre-assigned verified mountain driver will meet you with a Wandr nameboard for direct drop to your basecamp.
+                </p>
+              </div>
+
+              <button
+                type="button"
+                onClick={() => setNeedArrivalCab(!needArrivalCab)}
+                className={`px-3.5 py-2 rounded-xl text-xs font-bold transition-all cursor-pointer whitespace-nowrap flex items-center gap-1.5 self-end sm:self-center shrink-0 ${
+                  needArrivalCab
+                    ? 'bg-[#006C4A] text-white shadow-xs'
+                    : 'bg-[#F2F3FF] hover:bg-[#EAEDFF] text-[#131B2E] border border-[#DAE2FD]'
+                }`}
+              >
+                <span className="material-symbols-outlined text-[16px]">
+                  {needArrivalCab ? 'check_circle' : 'airport_shuttle'}
+                </span>
+                <span>{needArrivalCab ? 'Arrival Taxi Synced (₹750)' : '+ Sync Arrival Cab'}</span>
+              </button>
+            </div>
+
+            {/* Step 3: Interactive Rest & Recovery Pacing Buffer */}
+            <div className="p-4 bg-white rounded-2xl border border-[#DAE2FD]/70 space-y-2.5 shadow-xs">
+              <div className="flex items-center justify-between flex-wrap gap-2">
+                <div className="flex items-center gap-2">
+                  <span className="w-5 h-5 rounded-full bg-[#131B2E] text-white text-[11px] font-bold flex items-center justify-center">3</span>
+                  <span className="text-xs font-bold text-[#131B2E]">Physiological Rest Buffer at Basecamp</span>
+                </div>
+                <span className="text-[11px] font-semibold text-[#006C4A]">
+                  Day 1 starts ~{restPacingHours}h after check-in
+                </span>
+              </div>
+              <p className="text-xs text-[#4F5D72] pl-7">
+                How long would you like to unpack, take tea, and rest before your first activity?
+              </p>
+
+              <div className="grid grid-cols-1 sm:grid-cols-3 gap-2 pl-7 pt-1">
+                {[
+                  { hours: 1, label: '⚡ 1h Quick Refresh', sub: 'Hit the town early' },
+                  { hours: 2.5, label: '☕ 2.5h Chai & Nap', sub: 'Recommended for altitude' },
+                  { hours: 4, label: '🌙 Evening Unwind', sub: 'Relaxed slow start' },
+                ].map((pill) => (
+                  <button
+                    key={pill.hours}
+                    type="button"
+                    onClick={() => setRestPacingHours(pill.hours)}
+                    className={`p-2.5 rounded-xl text-left border transition-all cursor-pointer ${
+                      restPacingHours === pill.hours
+                        ? 'bg-[#131B2E] text-white border-[#131B2E] shadow-sm'
+                        : 'bg-[#F2F3FF] hover:bg-[#EAEDFF] text-[#131B2E] border-[#DAE2FD]'
+                    }`}
+                  >
+                    <span className="text-xs font-bold block">{pill.label}</span>
+                    <span className={`text-[10px] block mt-0.5 ${restPacingHours === pill.hours ? 'text-slate-300' : 'text-[#4F5D72]'}`}>
+                      {pill.sub}
+                    </span>
+                  </button>
+                ))}
+              </div>
+            </div>
+          </div>
 
           {/* Transit Vector Card */}
           <div className="bg-white rounded-3xl p-6 border border-[#DAE2FD]/80 shadow-xs space-y-4">

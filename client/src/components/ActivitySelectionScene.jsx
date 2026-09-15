@@ -224,11 +224,16 @@ export default function ActivitySelectionScene({
   onSelect,
   onSkip,
 }) {
-  const allExperiences = formatRawActivities(activities, destination);
+  const initialExperiences = formatRawActivities(activities, destination);
+  const [customExperiences, setCustomExperiences] = useState([]);
+  const [customInput, setCustomInput] = useState('');
+  const [isSynthesizingCustom, setIsSynthesizingCustom] = useState(false);
+
+  const allExperiences = [...customExperiences, ...initialExperiences];
 
   // Pre-select first 4 experiences by default
   const [selectedIds, setSelectedIds] = useState(
-    () => new Set(allExperiences.slice(0, 4).map(e => e.id))
+    () => new Set(initialExperiences.slice(0, 4).map(e => e.id))
   );
   const [activeFilter, setActiveFilter] = useState('all');
 
@@ -244,6 +249,37 @@ export default function ActivitySelectionScene({
       }
       return next;
     });
+  };
+
+  const handleAddCustomActivity = (e) => {
+    e?.preventDefault();
+    if (!customInput.trim()) return;
+
+    setIsSynthesizingCustom(true);
+    const wish = customInput.trim();
+
+    setTimeout(() => {
+      const newId = `custom-${Date.now()}`;
+      const newExp = {
+        id: newId,
+        name: wish.charAt(0).toUpperCase() + wish.slice(1),
+        category: wish.toLowerCase().includes('food') || wish.toLowerCase().includes('dinner') || wish.toLowerCase().includes('eat') || wish.toLowerCase().includes('dhaba') ? 'culinary' :
+                  wish.toLowerCase().includes('lake') || wish.toLowerCase().includes('sunset') || wish.toLowerCase().includes('nature') || wish.toLowerCase().includes('walk') ? 'nature' :
+                  wish.toLowerCase().includes('temple') || wish.toLowerCase().includes('fort') || wish.toLowerCase().includes('palace') || wish.toLowerCase().includes('monastery') ? 'culture' : 'adventure',
+        duration_hours: wish.toLowerCase().includes('dinner') || wish.toLowerCase().includes('tea') ? 1.5 : 2.5,
+        cost_inr: wish.toLowerCase().includes('rent') || wish.toLowerCase().includes('bike') ? 800 : 250,
+        safety_note: 'Tailored by Wandr Agent',
+        description: `Bespoke experience synthesized around "${wish}". Coordinated directly with verified community hosts.`,
+        icon: 'stars',
+        image: 'https://images.unsplash.com/photo-1506744038136-46273834b3fb?auto=format&fit=crop&w=800&q=80',
+        isCustom: true,
+      };
+
+      setCustomExperiences(prev => [newExp, ...prev]);
+      setSelectedIds(prev => new Set([newId, ...prev]));
+      setCustomInput('');
+      setIsSynthesizingCustom(false);
+    }, 450);
   };
 
   const selectedList = allExperiences.filter(e => selectedIds.has(e.id));
@@ -273,7 +309,7 @@ export default function ActivitySelectionScene({
             Curate Your Experiences in {destination || 'Your Destination'}
           </h1>
           <p className="text-xs sm:text-sm text-[#4F5D72] leading-relaxed">
-            Select the cultural traditions, heritage exploration, and guided nature walks you wish to weave into your {days}-day journey.
+            Select cultural traditions, heritage exploration, and guided nature walks — or type anything specific you want to do and let the agent pace it into your journey.
           </p>
         </div>
 
@@ -294,6 +330,56 @@ export default function ActivitySelectionScene({
             <span>Altitude Safe</span>
           </div>
         </div>
+      </div>
+
+      {/* ─── LIVE AGENTIC INPUT: "I Want To Do This..." ─── */}
+      <div className="bg-gradient-to-r from-[#FFF5EE] via-white to-[#F2F3FF] p-5 sm:p-6 rounded-3xl border border-[#FFDBC9] shadow-xs">
+        <div className="flex items-center gap-2.5 mb-2">
+          <div className="w-7 h-7 rounded-lg bg-[#FFDBC9] text-[#914714] flex items-center justify-center">
+            <span className="material-symbols-outlined text-[18px]">auto_awesome</span>
+          </div>
+          <h3 className="text-sm font-bold text-[#131B2E]">
+            Have a specific wish or custom activity in mind?
+          </h3>
+          <span className="text-[10px] font-extrabold text-[#914714] bg-[#FFDBC9]/60 px-2 py-0.5 rounded-md uppercase tracking-wider">
+            Agentic Synthesizer
+          </span>
+        </div>
+        <p className="text-xs text-[#4F5D72] mb-3">
+          Type whatever you'd like to experience (e.g. <em>"Dal Baati dinner at a local village dhaba"</em>, <em>"Watch sunset at a secret viewpoint"</em>, or <em>"Rent a bike for 3 hours"</em>). The agent will evaluate safety, estimate pricing, and fit it into your pacing envelope.
+        </p>
+
+        <form onSubmit={handleAddCustomActivity} className="flex items-center gap-2">
+          <div className="relative flex-1">
+            <span className="material-symbols-outlined absolute left-3.5 top-1/2 -translate-y-1/2 text-[18px] text-[#4F5D72]">
+              edit_note
+            </span>
+            <input
+              type="text"
+              value={customInput}
+              onChange={(e) => setCustomInput(e.target.value)}
+              placeholder="I want to do this: type any custom experience, dish, or place..."
+              className="w-full bg-white border border-[#DAE2FD] rounded-xl pl-10 pr-4 py-2.5 text-xs text-[#131B2E] placeholder-[#4F5D72]/60 focus:outline-none focus:ring-2 focus:ring-[#914714]/30 focus:border-[#914714]"
+            />
+          </div>
+          <button
+            type="submit"
+            disabled={!customInput.trim() || isSynthesizingCustom}
+            className="bg-[#914714] hover:bg-[#B05F2B] disabled:opacity-50 text-white text-xs font-semibold px-5 py-2.5 rounded-xl transition-all flex items-center gap-1.5 shadow-sm cursor-pointer whitespace-nowrap"
+          >
+            {isSynthesizingCustom ? (
+              <>
+                <span className="inline-block animate-spin">✦</span>
+                <span>Pacing Activity...</span>
+              </>
+            ) : (
+              <>
+                <span>Add to My Plan</span>
+                <span className="material-symbols-outlined text-[16px]">add_circle</span>
+              </>
+            )}
+          </button>
+        </form>
       </div>
 
       {/* Category Filter Bar */}

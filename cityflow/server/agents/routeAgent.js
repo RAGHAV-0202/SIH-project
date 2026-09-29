@@ -72,10 +72,10 @@ async function resolveCoordinates(placeName, defaultCoords = [28.6139, 77.2090])
     return { lat, lng, source: 'DELHI_KNOWLEDGE_BASE' };
   }
 
-  // 2. Partial dictionary match
+  // 2. Exact word match
   for (const [key, coords] of Object.entries(DELHI_LOCATIONS)) {
-    if (clean.includes(key) || key.includes(clean)) {
-      return { lat: coords[0], lng: coords[1], source: 'DELHI_KNOWLEDGE_PARTIAL' };
+    if (clean === key) {
+      return { lat: coords[0], lng: coords[1], source: 'DELHI_KNOWLEDGE_EXACT' };
     }
   }
 
@@ -84,12 +84,12 @@ async function resolveCoordinates(placeName, defaultCoords = [28.6139, 77.2090])
     return geoCache.get(clean);
   }
 
-  // 4. Live OpenStreetMap Nominatim request
+  // 4. Live OpenStreetMap Nominatim request across India
   try {
-    const query = `${encodeURIComponent(placeName)}, Delhi, India`;
-    const res = await fetch(`https://nominatim.openstreetmap.org/search?format=json&q=${query}&limit=1`, {
+    const query = `${encodeURIComponent(placeName)}`;
+    const res = await fetch(`https://nominatim.openstreetmap.org/search?format=json&q=${query}&countrycodes=in&limit=1`, {
       headers: { 'User-Agent': 'CityFlow-AI-UrbanTransit/1.0' },
-      signal: AbortSignal.timeout(3000)
+      signal: AbortSignal.timeout(4000)
     });
     if (res.ok) {
       const data = await res.json();

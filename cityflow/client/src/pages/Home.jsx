@@ -103,18 +103,7 @@ export default function Home() {
         <div className="absolute -top-40 right-10 w-96 h-96 rounded-full bg-[#FFDBC9]/40 blur-3xl pointer-events-none" />
         <div className="absolute top-20 left-1/4 w-80 h-80 rounded-full bg-emerald-100/50 blur-3xl pointer-events-none" />
 
-        <div className="max-w-7xl mx-auto w-full flex flex-col items-start relative z-10">
-          {/* Tag Overline */}
-          <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-white border border-slate-200/80 shadow-2xs mb-6">
-            <span className="w-2 h-2 rounded-full bg-[#006C4A] animate-pulse" />
-            <span className="text-xs font-semibold text-slate-700">
-              Autonomous Urban Mobility Platform
-            </span>
-            <span className="text-slate-300">•</span>
-            <span className="text-xs font-semibold text-[#006C4A]">
-              Real-Time Delhi NCT Network
-            </span>
-          </div>
+        <div className="max-w-7xl mx-auto w-full flex flex-col items-start relative z-10 pt-4">
 
           {/* Asymmetric Editorial Headline */}
           <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 w-full items-end mb-10">
@@ -371,12 +360,6 @@ export default function Home() {
           <div className="flex items-center gap-4 text-xs text-[#64748B]">
             <Link to="/plan" className="hover:text-[#C26D38] transition-colors">Plan Commute</Link>
             <Link to="/dashboard" className="hover:text-[#C26D38] transition-colors">Analytics</Link>
-            <Link to="/disruption" className="hover:text-[#C26D38] transition-colors">Disruption Lab</Link>
-            <Link to="/data-registry" className="hover:text-[#C26D38] transition-colors">Data Registry</Link>
-          </div>
-
-          <div className="text-xs text-[#94A3B8]">
-            Built with React, Leaflet, OpenWeather, Groq LLM & MongoDB.
           </div>
         </div>
       </footer>

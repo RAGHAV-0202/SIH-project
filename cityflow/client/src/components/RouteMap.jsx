@@ -83,12 +83,15 @@ async function geocodeLocation(placeName, fallback = [28.6139, 77.2090]) {
   if (!placeName || typeof placeName !== 'string') return fallback;
   const clean = placeName.trim().toLowerCase();
 
+  // 1. Direct dictionary match
   if (DELHI_STATION_COORDS[clean]) return DELHI_STATION_COORDS[clean];
 
+  // 2. Exact word match
   for (const [key, coords] of Object.entries(DELHI_STATION_COORDS)) {
-    if (clean.includes(key) || key.includes(clean)) return coords;
+    if (clean === key) return coords;
   }
 
+  // 3. Memory cache
   if (memoryGeoCache.has(clean)) return memoryGeoCache.get(clean);
 
   try {
@@ -100,10 +103,11 @@ async function geocodeLocation(placeName, fallback = [28.6139, 77.2090]) {
     }
   } catch {}
 
+  // 4. Genuine OpenStreetMap Nominatim geocoding across India
   try {
-    const res = await fetch(`https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(placeName)}, Delhi, India&limit=1`, {
+    const res = await fetch(`https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(placeName)}&countrycodes=in&limit=1`, {
       headers: { 'User-Agent': 'CityFlow-Client-Geocode/1.0' },
-      signal: AbortSignal.timeout(3000)
+      signal: AbortSignal.timeout(4000)
     });
     if (res.ok) {
       const data = await res.json();

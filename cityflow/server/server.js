@@ -15,15 +15,15 @@ app.use('/api/dashboard', dashboardRoutes);
 
 const PORT = process.env.PORT || 3001;
 
-// Only bind to local port when not running in serverless environment (e.g. Vercel)
-if (!process.env.VERCEL) {
-  connectDB().then(() => {
-    app.listen(PORT, () => {
-      console.log(`✅ Server running on port ${PORT}`);
-    });
+connectDB().then(() => {
+  app.listen(PORT, () => {
+    console.log(`✅ Server running on port ${PORT}`);
   });
-} else {
-  connectDB().catch(err => console.warn('Serverless DB init:', err.message));
-}
+}).catch(err => {
+  console.warn('DB initialization error:', err.message);
+  app.listen(PORT, () => {
+    console.log(`✅ Server running on port ${PORT} (fallback mode)`);
+  });
+});
 
 module.exports = app;

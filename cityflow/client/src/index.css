@@ -1,0 +1,120 @@
+@import "tailwindcss";
+
+:root {
+  /* Editorial Daylight Palette (Reused from previous prototype) */
+  --terracotta: #C26D38;
+  --terracotta-hover: #A85A2A;
+  --canvas-bg: #FAF8FF;
+  --card-bg: #FFFFFF;
+  --slate-heading: #131B2E;
+  --slate-body: #4F5D72;
+  --slate-muted: #64748B;
+  --forest-emerald: #059669;
+  --warm-amber: #D97706;
+  --blocked-rose: #E11D48;
+  --sky-blue: #0284C7;
+
+  /* Legacy & compatibility tokens */
+  --ink: #131B2E;
+  --paper: #FAF8FF;
+  --route: #C26D38;
+}
+
+body {
+  background-color: #FAF8FF;
+  color: #131B2E;
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+  min-height: 100vh;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  line-height: 1.5;
+}
+
+/* ─── Typography Classes ────────────────────────────────────── */
+.font-display {
+  font-family: 'Outfit', -apple-system, BlinkMacSystemFont, sans-serif;
+}
+
+.font-serif {
+  font-family: 'Fraunces', Georgia, serif;
+}
+
+.font-body {
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+}
+
+.font-mono {
+  font-family: 'JetBrains Mono', ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+}
+
+/* ─── Browser Surfaces & Selection ──────────────────────────── */
+::selection {
+  background: var(--terracotta);
+  color: #ffffff;
+}
+
+input, textarea {
+  caret-color: var(--terracotta);
+}
+
+/* ─── Custom Scrollbar ──────────────────────────────────────── */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+::-webkit-scrollbar-thumb {
+  background: #CBD5E1;
+  border-radius: 9999px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: #94A3B8;
+}
+
+/* ─── Reusable Button Styles ────────────────────────────────── */
+.btn-terracotta {
+  background-color: var(--terracotta);
+  color: #ffffff;
+  font-family: 'Inter', sans-serif;
+  font-size: 14px;
+  font-weight: 600;
+  padding: 10px 22px;
+  border-radius: 10px;
+  border: 1px solid transparent;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  transition: all 0.15s ease;
+  box-shadow: 0 1px 3px rgba(194, 109, 56, 0.2);
+}
+
+.btn-terracotta:hover {
+  background-color: var(--terracotta-hover);
+  transform: translateY(-1px);
+}
+
+.btn-secondary {
+  background-color: #FFFFFF;
+  color: var(--slate-heading);
+  font-family: 'Inter', sans-serif;
+  font-size: 14px;
+  font-weight: 500;
+  padding: 9px 20px;
+  border-radius: 10px;
+  border: 1px solid #E2E8F0;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  transition: all 0.15s ease;
+}
+
+.btn-secondary:hover {
+  background-color: #F8FAFC;
+  border-color: #CBD5E1;
+}

@@ -1,0 +1,114 @@
+{
+  "corridors": [
+    {
+      "name": "Ring Road (North)",
+      "from": {"lat": 28.6858, "lng": 77.2227},
+      "to": {"lat": 28.6355, "lng": 77.2259},
+      "length_km": 8.2,
+      "lanes": 6,
+      "peak_congestion_level": 0.85,
+      "avg_speed_peak_kmph": 15,
+      "avg_speed_offpeak_kmph": 45,
+      "bottlenecks": ["ISBT Kashmere Gate", "Wazirabad Bridge"]
+    },
+    {
+      "name": "Outer Ring Road (South)",
+      "from": {"lat": 28.5414, "lng": 77.1691},
+      "to": {"lat": 28.5492, "lng": 77.2625},
+      "length_km": 12.5,
+      "lanes": 6,
+      "peak_congestion_level": 0.90,
+      "avg_speed_peak_kmph": 12,
+      "avg_speed_offpeak_kmph": 50,
+      "bottlenecks": ["Chirag Delhi", "Nehru Place"]
+    },
+    {
+      "name": "NH-8 (Delhi-Gurgaon)",
+      "from": {"lat": 28.5835, "lng": 77.1420},
+      "to": {"lat": 28.4984, "lng": 77.0874},
+      "length_km": 15.0,
+      "lanes": 8,
+      "peak_congestion_level": 0.95,
+      "avg_speed_peak_kmph": 10,
+      "avg_speed_offpeak_kmph": 60,
+      "bottlenecks": ["Mahipalpur", "Rao Tula Ram Marg"]
+    },
+    {
+      "name": "Vikas Marg",
+      "from": {"lat": 28.6300, "lng": 77.2435},
+      "to": {"lat": 28.6360, "lng": 77.2913},
+      "length_km": 6.0,
+      "lanes": 4,
+      "peak_congestion_level": 0.88,
+      "avg_speed_peak_kmph": 14,
+      "avg_speed_offpeak_kmph": 40,
+      "bottlenecks": ["ITO", "Laxmi Nagar"]
+    },
+    {
+      "name": "Rohtak Road",
+      "from": {"lat": 28.6620, "lng": 77.1350},
+      "to": {"lat": 28.6750, "lng": 77.0850},
+      "length_km": 8.5,
+      "lanes": 6,
+      "peak_congestion_level": 0.75,
+      "avg_speed_peak_kmph": 20,
+      "avg_speed_offpeak_kmph": 45,
+      "bottlenecks": ["Punjabi Bagh", "Peera Garhi"]
+    },
+    {
+      "name": "Mathura Road",
+      "from": {"lat": 28.6200, "lng": 77.2400},
+      "to": {"lat": 28.5300, "lng": 77.2900},
+      "length_km": 11.0,
+      "lanes": 6,
+      "peak_congestion_level": 0.82,
+      "avg_speed_peak_kmph": 18,
+      "avg_speed_offpeak_kmph": 50,
+      "bottlenecks": ["Ashram Chowk", "Nizamuddin"]
+    },
+    {
+      "name": "Aurobindo Marg",
+      "from": {"lat": 28.5800, "lng": 77.2000},
+      "to": {"lat": 28.5300, "lng": 77.1900},
+      "length_km": 6.5,
+      "lanes": 4,
+      "peak_congestion_level": 0.86,
+      "avg_speed_peak_kmph": 14,
+      "avg_speed_offpeak_kmph": 35,
+      "bottlenecks": ["AIIMS", "Green Park"]
+    },
+    {
+      "name": "Mehrauli-Badarpur Road",
+      "from": {"lat": 28.5150, "lng": 77.1900},
+      "to": {"lat": 28.4900, "lng": 77.3000},
+      "length_km": 13.0,
+      "lanes": 4,
+      "peak_congestion_level": 0.89,
+      "avg_speed_peak_kmph": 16,
+      "avg_speed_offpeak_kmph": 40,
+      "bottlenecks": ["Khanpur", "Tughlakabad"]
+    },
+    {
+      "name": "Najafgarh Road",
+      "from": {"lat": 28.6500, "lng": 77.1500},
+      "to": {"lat": 28.6100, "lng": 77.0500},
+      "length_km": 12.0,
+      "lanes": 4,
+      "peak_congestion_level": 0.80,
+      "avg_speed_peak_kmph": 18,
+      "avg_speed_offpeak_kmph": 45,
+      "bottlenecks": ["Moti Nagar", "Uttam Nagar"]
+    },
+    {
+      "name": "GT Karnal Road",
+      "from": {"lat": 28.7000, "lng": 77.1800},
+      "to": {"lat": 28.7800, "lng": 77.1400},
+      "length_km": 10.5,
+      "lanes": 6,
+      "peak_congestion_level": 0.78,
+      "avg_speed_peak_kmph": 22,
+      "avg_speed_offpeak_kmph": 55,
+      "bottlenecks": ["Azadpur", "Mukarba Chowk"]
+    }
+  ]
+}

@@ -1,0 +1,20 @@
+{
+  "name": "cityflow-server",
+  "version": "1.0.0",
+  "description": "CityFlow AI - Smart Urban Transit Optimizer Backend",
+  "main": "server.js",
+  "type": "commonjs",
+  "scripts": {
+    "start": "node server.js",
+    "dev": "node --watch server.js"
+  },
+  "dependencies": {
+    "express": "^5.2.1",
+    "cors": "^2.8.6",
+    "dotenv": "^17.4.2",
+    "groq-sdk": "^1.6.0",
+    "zod": "^4.6.1",
+    "mongoose": "^9.9.5",
+    "mongodb-memory-server": "^11.2.0"
+  }
+}

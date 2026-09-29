@@ -1,0 +1,89 @@
+{
+  "metro": {
+    "lines": [
+      {
+        "name": "Blue Line",
+        "color": "#003DA5",
+        "stations": [
+          {"name": "Dwarka Sector 21", "lat": 28.5523, "lng": 77.0586, "interchange": ["Airport Express"]},
+          {"name": "Dwarka Sector 8", "lat": 28.5693, "lng": 77.0718},
+          {"name": "Dwarka Sector 9", "lat": 28.5746, "lng": 77.0645},
+          {"name": "Dwarka Sector 10", "lat": 28.5815, "lng": 77.0573},
+          {"name": "Dwarka Sector 11", "lat": 28.5878, "lng": 77.0505},
+          {"name": "Dwarka Sector 12", "lat": 28.5921, "lng": 77.0460},
+          {"name": "Dwarka", "lat": 28.5996, "lng": 77.0229},
+          {"name": "Rajiv Chowk", "lat": 28.6328, "lng": 77.2197, "interchange": ["Yellow Line"]},
+          {"name": "Mandi House", "lat": 28.6258, "lng": 77.2343, "interchange": ["Violet Line"]},
+          {"name": "Noida City Centre", "lat": 28.5746, "lng": 77.3561}
+        ]
+      },
+      {
+        "name": "Yellow Line",
+        "color": "#FFC000",
+        "stations": [
+          {"name": "Samaypur Badli", "lat": 28.7456, "lng": 77.1390},
+          {"name": "Jahangirpuri", "lat": 28.7262, "lng": 77.1593},
+          {"name": "Azadpur", "lat": 28.7067, "lng": 77.1738, "interchange": ["Pink Line"]},
+          {"name": "Kashmere Gate", "lat": 28.6665, "lng": 77.2255, "interchange": ["Red Line", "Violet Line"]},
+          {"name": "Rajiv Chowk", "lat": 28.6328, "lng": 77.2197, "interchange": ["Blue Line"]},
+          {"name": "Hauz Khas", "lat": 28.5432, "lng": 77.2065, "interchange": ["Magenta Line"]},
+          {"name": "Qutab Minar", "lat": 28.5255, "lng": 77.1856},
+          {"name": "HUDA City Centre", "lat": 28.4593, "lng": 77.0724}
+        ]
+      },
+      {
+        "name": "Red Line",
+        "color": "#FF0000",
+        "stations": [
+          {"name": "Rithala", "lat": 28.7207, "lng": 77.1070},
+          {"name": "Rohini West", "lat": 28.7149, "lng": 77.1145},
+          {"name": "Pitampura", "lat": 28.6980, "lng": 77.1328},
+          {"name": "Netaji Subhash Place", "lat": 28.6961, "lng": 77.1517, "interchange": ["Pink Line"]},
+          {"name": "Kashmere Gate", "lat": 28.6665, "lng": 77.2255, "interchange": ["Yellow Line", "Violet Line"]},
+          {"name": "Seelampur", "lat": 28.6640, "lng": 77.2660},
+          {"name": "Dilshad Garden", "lat": 28.6845, "lng": 77.3193},
+          {"name": "Shaheed Sthal", "lat": 28.6703, "lng": 77.4140}
+        ]
+      },
+      {
+        "name": "Violet Line",
+        "color": "#800080",
+        "stations": [
+          {"name": "Kashmere Gate", "lat": 28.6665, "lng": 77.2255, "interchange": ["Red Line", "Yellow Line"]},
+          {"name": "Mandi House", "lat": 28.6258, "lng": 77.2343, "interchange": ["Blue Line"]},
+          {"name": "Central Secretariat", "lat": 28.6146, "lng": 77.2119, "interchange": ["Yellow Line"]},
+          {"name": "Lajpat Nagar", "lat": 28.5709, "lng": 77.2433, "interchange": ["Pink Line"]},
+          {"name": "Kalkaji Mandir", "lat": 28.5393, "lng": 77.2585, "interchange": ["Magenta Line"]},
+          {"name": "Badarpur Border", "lat": 28.4930, "lng": 77.3032},
+          {"name": "Raja Nahar Singh", "lat": 28.3182, "lng": 77.3196}
+        ]
+      }
+    ]
+  },
+  "bus": {
+    "routes": [
+      {"number": "501", "from": "Dwarka Sector 1", "to": "Connaught Place", "stops": ["Dwarka", "Palam", "Dhaula Kuan", "CP"], "frequency_min": 15, "fare_inr": 25},
+      {"number": "423", "from": "Noida", "to": "ISBT", "stops": ["Noida", "Akshardham", "ITO", "ISBT"], "frequency_min": 20, "fare_inr": 30},
+      {"number": "901", "from": "Rohini", "to": "Kamla Market", "stops": ["Rohini", "Azadpur", "Kashmere Gate", "Kamla Market"], "frequency_min": 15, "fare_inr": 20},
+      {"number": "39", "from": "Jheel", "to": "Anand Vihar", "stops": ["Jheel", "Geeta Colony", "Laxmi Nagar", "Anand Vihar"], "frequency_min": 25, "fare_inr": 15},
+      {"number": "724", "from": "Uttam Nagar", "to": "Nehru Place", "stops": ["Uttam Nagar", "Janakpuri", "Dhaula Kuan", "Nehru Place"], "frequency_min": 10, "fare_inr": 35},
+      {"number": "544", "from": "RK Puram", "to": "Badarpur", "stops": ["RK Puram", "AIIMS", "Lajpat Nagar", "Badarpur"], "frequency_min": 15, "fare_inr": 30},
+      {"number": "212", "from": "Anand Parbat", "to": "Nand Nagri", "stops": ["Anand Parbat", "Karol Bagh", "ISBT", "Nand Nagri"], "frequency_min": 20, "fare_inr": 25},
+      {"number": "604", "from": "Vasant Kunj", "to": "New Delhi Rly Station", "stops": ["Vasant Kunj", "Munirka", "Connaught Place", "NDLS"], "frequency_min": 12, "fare_inr": 30},
+      {"number": "817", "from": "Najafgarh", "to": "Kauria Bridge", "stops": ["Najafgarh", "Peera Garhi", "Punjabi Bagh", "Kauria Bridge"], "frequency_min": 18, "fare_inr": 35},
+      {"number": "419", "from": "Ambedkar Nagar", "to": "Kashmere Gate", "stops": ["Ambedkar Nagar", "Lajpat Nagar", "ITO", "Kashmere Gate"], "frequency_min": 15, "fare_inr": 30}
+    ]
+  },
+  "auto_zones": [
+    {"name": "Central Delhi", "base_fare": 25, "per_km": 9.5},
+    {"name": "South Delhi", "base_fare": 25, "per_km": 9.5},
+    {"name": "North Delhi", "base_fare": 25, "per_km": 9.5},
+    {"name": "East Delhi", "base_fare": 25, "per_km": 9.5},
+    {"name": "West Delhi", "base_fare": 25, "per_km": 9.5}
+  ],
+  "cab_providers": [
+    {"name": "Ola", "base_fare": 50, "per_km": 14, "surge_multiplier_range": [1.0, 2.5]},
+    {"name": "Uber", "base_fare": 45, "per_km": 13, "surge_multiplier_range": [1.0, 3.0]},
+    {"name": "Rapido Bike", "base_fare": 15, "per_km": 5, "surge_multiplier_range": [1.0, 1.5]}
+  ]
+}

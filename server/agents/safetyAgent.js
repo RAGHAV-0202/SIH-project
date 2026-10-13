@@ -150,7 +150,31 @@ function evaluateSafety(destination, dayPlans = [], selectedStay = null, selecte
   };
 }
 
+/**
+ * Fetches live travel advisories for a destination using TinyFish web search.
+ * Returns array of advisory objects or empty array.
+ */
+async function fetchLiveAdvisories(destination) {
+  try {
+    const { tinySearch } = require('../utils/tinyfishClient');
+    const results = await tinySearch(
+      `${destination} India travel advisory warning road closure 2026`,
+      3
+    );
+    return results.map(r => ({
+      title: r.title,
+      snippet: r.snippet,
+      source: r.url,
+      fetched_at: new Date().toISOString(),
+    }));
+  } catch (err) {
+    console.warn(`⚠️ [SafetyAgent] Failed to fetch live advisories: ${err.message}`);
+    return [];
+  }
+}
+
 module.exports = {
   evaluateSafety,
   EMERGENCY_DIRECTORIES,
+  fetchLiveAdvisories,
 };

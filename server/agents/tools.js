@@ -14,6 +14,7 @@ const { callGroqWithFallback } = require('../utils/groqClient');
 const transportFallback = require('../data/transport.json');
 const staysFallback = require('../data/stays.json');
 const destinationsFallback = require('../data/destinations.json');
+const { tinySearch, tinyFetch } = require('../utils/tinyfishClient');
 
 // Safe helper to extract and clean JSON string from LLM response
 function cleanAndParseJson(text) {
@@ -215,8 +216,65 @@ async function fetchRailRadarTrains(origin, destination, maxPrice, travelClass) 
 }
 
 /**
+ * Scrapes train options using TinyFish search/fetch when RailRadar is exhausted or unavailable.
+ */
+async function fetchTrainsViaTinyFish(origin, destination, maxPrice, travelClass) {
+  try {
+    const searchResults = await tinySearch(`erail train between ${origin} and ${destination} time schedule`, 3);
+    const targetUrl = searchResults.find(r => r.url.includes('erail.in') || r.url.includes('railyatri'))?.url;
+    if (!targetUrl) return null;
+
+    const markdown = await tinyFetch(targetUrl);
+    if (!markdown || markdown.length < 100) return null;
+
+    const { content } = await callGroqWithFallback({
+      temperature: 0.1,
+      max_tokens: 1500,
+      messages: [
+        {
+          role: 'system',
+          content: `Extract real Indian Railway train options from scraped train schedule page.
+Return ONLY a valid JSON array. Schema:
+[
+  {
+    "id": "tf-train-1",
+    "mode": "train",
+    "operator": "Indian Railways (12056 Shatabdi Express)",
+    "departure": "06:15 AM",
+    "arrival": "01:30 PM",
+    "duration_hours": 7.25,
+    "price_inr": 1150,
+    "class": "${travelClass || '3A'}",
+    "waitlist_status": "confirmed",
+    "cancellation_probability": 0.05,
+    "live_verified": true,
+    "source": "erail / TinyFish Web Scrape"
+  }
+]
+If no trains found, return [].`
+        },
+        {
+          role: 'user',
+          content: `Trains ${origin} to ${destination}, max budget: ₹${maxPrice || 3500}.\n\n${markdown.substring(0, 4000)}`
+        }
+      ]
+    });
+
+    const parsed = cleanAndParseJson(content);
+    if (Array.isArray(parsed) && parsed.length > 0) {
+      console.log(`🚆 TinyFish erail: Extracted ${parsed.length} trains for ${origin} → ${destination}`);
+      return parsed;
+    }
+    return null;
+  } catch (err) {
+    console.warn(`⚠️ TinyFish train scrape failed: ${err.message}`);
+    return null;
+  }
+}
+
+/**
  * TOOL 1: search_trains_tool
- * Live RailRadar IRCTC integration with Groq LLM & knowledge heuristic fallback.
+ * Live RailRadar IRCTC integration with TinyFish web fallback, Groq LLM & knowledge heuristic fallback.
  */
 async function search_trains_tool({ origin, destination, maxPrice, travelClass = '3A' }) {
   // 1. First, attempt live RailRadar IRCTC API
@@ -225,7 +283,13 @@ async function search_trains_tool({ origin, destination, maxPrice, travelClass =
     return liveTrains;
   }
 
-  // 2. Second, attempt Groq multi-model reasoning
+  // 2. Second, attempt TinyFish web scrape
+  const tinyFishTrains = await fetchTrainsViaTinyFish(origin, destination, maxPrice, travelClass);
+  if (Array.isArray(tinyFishTrains) && tinyFishTrains.length > 0) {
+    return tinyFishTrains;
+  }
+
+  // 3. Third, attempt Groq multi-model reasoning
   try {
     const { content } = await callGroqWithFallback({
       temperature: 0.2,
@@ -283,10 +347,74 @@ Schema:
 }
 
 /**
+ * Scrapes RedBus for real bus options between two Indian cities using TinyFish.
+ */
+async function fetchBusesViaTinyFish(origin, destination, maxPrice, busType) {
+  try {
+    const searchRes = await tinySearch(`redbus ${origin} to ${destination} bus tickets price schedule`, 3);
+    const targetUrl = searchRes.find(r => r.url.includes('redbus.in/bus-tickets/'))?.url ||
+      `https://www.redbus.in/bus-tickets/${origin.toLowerCase().replace(/\s+/g, '-')}-to-${destination.toLowerCase().replace(/\s+/g, '-')}`;
+
+    const markdown = await tinyFetch(targetUrl);
+    if (!markdown || markdown.length < 100) return null;
+
+    const { content } = await callGroqWithFallback({
+      temperature: 0.1,
+      max_tokens: 1500,
+      messages: [
+        {
+          role: 'system',
+          content: `You are a data extraction engine. Given scraped RedBus page content, extract up to 3 bus options.
+Return ONLY a valid JSON array. Schema:
+[
+  {
+    "id": "bus-rb-1",
+    "mode": "bus",
+    "operator": "Operator name from page (e.g. HRTC Himsuta / Laxmi Holidays)",
+    "departure": "08:30 PM",
+    "arrival": "06:30 AM+1",
+    "duration_hours": 10.5,
+    "price_inr": 1250,
+    "class": "Volvo AC / AC Sleeper / Semi-Sleeper",
+    "waitlist_status": "confirmed",
+    "cancellation_probability": 0.02,
+    "live_verified": true,
+    "source": "RedBus (TinyFish Live Scrape)"
+  }
+]
+If no bus data found in the content, return an empty array [].`
+        },
+        {
+          role: 'user',
+          content: `Extract bus options from this RedBus page for ${origin} to ${destination}. Max budget: ₹${maxPrice || 2500}. Preference: ${busType || 'Volvo AC'}.\n\nPage content:\n${markdown.substring(0, 4000)}`
+        }
+      ]
+    });
+
+    const parsed = cleanAndParseJson(content);
+    if (Array.isArray(parsed) && parsed.length > 0) {
+      console.log(`🚌 TinyFish RedBus: Extracted ${parsed.length} real bus options for ${origin} → ${destination}`);
+      return parsed;
+    }
+    return null;
+  } catch (err) {
+    console.warn(`⚠️ TinyFish bus scrape failed: ${err.message}`);
+    return null;
+  }
+}
+
+/**
  * TOOL 2: search_buses_tool
- * Generates realistic State Road Transport (HRTC, KSRTC, UPSRTC) or verified private Volvo coaches.
+ * Live TinyFish RedBus integration with State Road Transport (HRTC, KSRTC, UPSRTC) Groq LLM & heuristic fallback.
  */
 async function search_buses_tool({ origin, destination, maxPrice, busType = 'Volvo AC' }) {
+  // 1. First, attempt TinyFish live RedBus scrape
+  const tinyFishBuses = await fetchBusesViaTinyFish(origin, destination, maxPrice, busType);
+  if (Array.isArray(tinyFishBuses) && tinyFishBuses.length > 0) {
+    return tinyFishBuses;
+  }
+
+  // 2. Second, attempt Groq LLM reasoning
   try {
     const { content } = await callGroqWithFallback({
       temperature: 0.2,
@@ -467,8 +595,65 @@ async function fetchAviationStackFlights(origin, destination, maxPrice) {
 }
 
 /**
+ * Searches for real flight schedules/prices using TinyFish when AviationStack is unavailable or exhausted.
+ */
+async function fetchFlightsViaTinyFish(origin, destination, maxPrice) {
+  try {
+    const searchResults = await tinySearch(`flights from ${origin} to ${destination} India price schedule today`, 3);
+    const topUrl = searchResults.find(r => r.url.includes('makemytrip') || r.url.includes('ixigo') || r.url.includes('skyscanner') || r.url.includes('google.com/travel'))?.url || searchResults[0]?.url;
+    if (!topUrl) return null;
+
+    const markdown = await tinyFetch(topUrl);
+    if (!markdown || markdown.length < 100) return null;
+
+    const { content: llmContent } = await callGroqWithFallback({
+      temperature: 0.1,
+      max_tokens: 1500,
+      messages: [
+        {
+          role: 'system',
+          content: `Extract real commercial flight options from scraped travel page content.
+Return ONLY a valid JSON array. Schema:
+[
+  {
+    "id": "tf-flight-1",
+    "mode": "flight",
+    "operator": "IndiGo / Air India / Vistara / SpiceJet (FlightNum)",
+    "departure": "07:45 AM",
+    "arrival": "09:30 AM",
+    "duration_hours": 1.75,
+    "price_inr": 4200,
+    "class": "Economy",
+    "waitlist_status": "available",
+    "cancellation_probability": 0.03,
+    "live_verified": true,
+    "source": "TinyFish Web Search"
+  }
+]
+If no flights found, return [].`
+        },
+        {
+          role: 'user',
+          content: `Flights ${origin} to ${destination}, max budget: ₹${maxPrice || 8000}.\n\n${markdown.substring(0, 3500)}`
+        }
+      ]
+    });
+
+    const parsed = cleanAndParseJson(llmContent);
+    if (Array.isArray(parsed) && parsed.length > 0) {
+      console.log(`✈️ TinyFish: Extracted ${parsed.length} flight options for ${origin} → ${destination}`);
+      return parsed;
+    }
+    return null;
+  } catch (err) {
+    console.warn(`⚠️ TinyFish flight search failed: ${err.message}`);
+    return null;
+  }
+}
+
+/**
  * TOOL 3: search_flights_tool
- * Live AviationStack integration with Groq LLM & knowledge fallback.
+ * Live AviationStack integration with TinyFish web fallback & Groq LLM fallback.
  */
 async function search_flights_tool({ origin, destination, maxPrice }) {
   // 1. Try Live AviationStack Radar
@@ -477,7 +662,13 @@ async function search_flights_tool({ origin, destination, maxPrice }) {
     return liveFlights;
   }
 
-  // 2. Groq LLM Fallback
+  // 2. TinyFish web search fallback
+  const tinyFishFlights = await fetchFlightsViaTinyFish(origin, destination, maxPrice);
+  if (Array.isArray(tinyFishFlights) && tinyFishFlights.length > 0) {
+    return tinyFishFlights;
+  }
+
+  // 3. Groq LLM Fallback
   try {
     const { content } = await callGroqWithFallback({
       temperature: 0.2,
@@ -543,11 +734,91 @@ async function search_cabs_tool({ origin, destination, vehicleType = 'Innova 4x4
 }
 
 /**
+ * Searches for real accommodation listings using TinyFish web search.
+ */
+async function fetchStaysViaTinyFish(destination, people, budgetPerNight) {
+  try {
+    const results = await tinySearch(
+      `best homestays and hotels in ${destination} India budget ₹${budgetPerNight} per night booking airbnb`,
+      3
+    );
+
+    if (!results || results.length === 0) return null;
+
+    const pages = [];
+    for (const r of results.slice(0, 2)) {
+      try {
+        const content = await tinyFetch(r.url);
+        if (content && content.length > 100) {
+          pages.push(content.substring(0, 3000));
+        }
+      } catch {
+        // Skip unfetchable pages
+      }
+    }
+
+    if (pages.length === 0) return null;
+
+    const { content } = await callGroqWithFallback({
+      temperature: 0.1,
+      max_tokens: 1800,
+      messages: [
+        {
+          role: 'system',
+          content: `You are a data extraction engine. Given scraped accommodation page content, extract 2-3 real stay options.
+Return ONLY a valid JSON array. Schema:
+[
+  {
+    "id": "stay-tf-1",
+    "name": "Actual property name from page",
+    "destination": "${destination}",
+    "type": "Homestay",
+    "host_name": "Host name if mentioned, else 'Local Host'",
+    "local_owner_name": "Host name or family",
+    "price_per_night_inr": 1800,
+    "max_guests": ${Math.max(people + 2, 4)},
+    "rating": 4.8,
+    "amenities": ["Home Cooked Meals", "Hot Water", "Local Guide Advice", "Wi-Fi"],
+    "is_local_homestay": true,
+    "description": "Authentic description from page",
+    "live_verified": true,
+    "source": "TinyFish Web Scrape"
+  }
+]
+If no stay data found, return [].`
+        },
+        {
+          role: 'user',
+          content: `Extract accommodations in ${destination} for ${people} guests, budget ₹${budgetPerNight}/night.\n\n${pages.join('\n\n---\n\n')}`
+        }
+      ]
+    });
+
+    const parsed = cleanAndParseJson(content);
+    if (Array.isArray(parsed) && parsed.length > 0) {
+      console.log(`🏠 TinyFish Stays: Extracted ${parsed.length} real listings for ${destination}`);
+      return parsed;
+    }
+    return null;
+  } catch (err) {
+    console.warn(`⚠️ TinyFish stay search failed: ${err.message}`);
+    return null;
+  }
+}
+
+/**
  * TOOL 5: search_stays_tool
- * Queries or generates community homestays and heritage boutique properties for ANY Indian destination.
+ * Live TinyFish accommodation integration with Groq LLM & stays.json fallback.
  * Enforces +30% boost tag for local community homestays.
  */
 async function search_stays_tool({ destination, people, budgetPerNight, excludeIds = [] }) {
+  // 1. First, attempt TinyFish live web search
+  const tinyFishStays = await fetchStaysViaTinyFish(destination, people, budgetPerNight);
+  if (Array.isArray(tinyFishStays) && tinyFishStays.length > 0) {
+    return tinyFishStays.filter(s => !excludeIds.includes(s.id));
+  }
+
+  // 2. Second, attempt Groq LLM reasoning
   try {
     const { content } = await callGroqWithFallback({
       temperature: 0.2,
@@ -616,10 +887,86 @@ Schema:
 }
 
 /**
+ * Searches for real activities, attractions, and food specialties using TinyFish web search.
+ */
+async function fetchActivitiesViaTinyFish(destination, preferences = []) {
+  try {
+    const prefStr = preferences.length > 0 ? preferences.join(', ') : 'nature, heritage, local food';
+    const results = await tinySearch(
+      `top things to do in ${destination} India sightseeing attractions food`,
+      3
+    );
+
+    if (!results || results.length === 0) return null;
+
+    const pages = [];
+    for (const r of results.slice(0, 2)) {
+      try {
+        const content = await tinyFetch(r.url);
+        if (content && content.length > 100) {
+          pages.push(content.substring(0, 3000));
+        }
+      } catch {
+        // Skip unfetchable pages
+      }
+    }
+
+    if (pages.length === 0) return null;
+
+    const { content } = await callGroqWithFallback({
+      temperature: 0.1,
+      max_tokens: 1800,
+      messages: [
+        {
+          role: 'system',
+          content: `Extract real activities from scraped travel pages for ${destination}.
+Return ONLY a valid JSON object (no markdown):
+{
+  "outdoor": [
+    { "name": "Real place name", "description": "Accurate description", "duration_hours": 2.5, "cost_inr": 200, "category": "nature", "place_type": "Attraction", "live_verified": true, "source": "TinyFish" }
+  ],
+  "indoor": [
+    { "name": "Real museum/temple name", "description": "Accurate description", "duration_hours": 2, "cost_inr": 50, "category": "culture", "place_type": "Attraction", "live_verified": true, "source": "TinyFish" }
+  ],
+  "food_specialties": [
+    "Famous dish 1",
+    "Famous dish 2"
+  ],
+  "estimated_daily_food_cost_inr": 550,
+  "estimated_daily_local_travel_inr": 400
+}`
+        },
+        {
+          role: 'user',
+          content: `Activities for ${destination}. Preferences: ${prefStr}.\n\n${pages.join('\n\n---\n\n')}`
+        }
+      ]
+    });
+
+    const parsed = cleanAndParseJson(content);
+    if (parsed && Array.isArray(parsed.outdoor) && Array.isArray(parsed.indoor)) {
+      console.log(`🎯 TinyFish Activities: Extracted real POIs for ${destination}`);
+      return parsed;
+    }
+    return null;
+  } catch (err) {
+    console.warn(`⚠️ TinyFish activity search failed: ${err.message}`);
+    return null;
+  }
+}
+
+/**
  * TOOL 6: search_activities_tool
- * Knowledge generator for regional outdoor, indoor, and food specialties for any Indian region.
+ * Live TinyFish POI extraction with Groq LLM & destinations.json fallback.
  */
 async function search_activities_tool({ destination, preferences = [] }) {
+  // 1. First, attempt TinyFish live web search
+  const tinyFishActivities = await fetchActivitiesViaTinyFish(destination, preferences);
+  if (tinyFishActivities) {
+    return tinyFishActivities;
+  }
+
+  // 2. Second, attempt Groq LLM reasoning
   try {
     const { content } = await callGroqWithFallback({
       temperature: 0.2,

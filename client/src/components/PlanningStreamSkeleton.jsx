@@ -14,7 +14,8 @@ import {
   MapPin,
   Calendar,
   Wallet,
-  Activity
+  Activity,
+  Users
 } from 'lucide-react';
 
 const AGENT_STREAM_STEPS = [
@@ -107,97 +108,134 @@ export default function PlanningStreamSkeleton({
     <div className="w-full space-y-8 animate-fadeIn">
       
       {/* ─── Top Live Streaming Agent Telemetry Banner ─── */}
-      <div className="w-full bg-white rounded-3xl border border-slate-200/90 shadow-md p-6 sm:p-8 overflow-hidden relative">
+      <div className="w-full bg-white rounded-3xl border border-slate-200/90 shadow-sm p-6 sm:p-7 overflow-hidden relative">
         {/* Ambient background glow orb */}
         <div className="absolute -top-16 -right-16 w-64 h-64 rounded-full bg-amber-400/10 blur-3xl pointer-events-none" />
         <div className="absolute -bottom-16 -left-16 w-64 h-64 rounded-full bg-emerald-400/10 blur-3xl pointer-events-none" />
 
-        <div className="relative z-10 flex flex-col md:flex-row md:items-center justify-between gap-6 pb-6 border-b border-slate-100">
-          <div className="flex items-start gap-4">
-            <div className="w-13 h-13 rounded-2xl bg-[#EAEDFF] border border-[#DAE2FD] flex items-center justify-center text-[#914714] shadow-xs shrink-0 relative">
-              <StepIcon className="w-6 h-6 animate-pulse" />
-              <span className="absolute -top-1 -right-1 w-3 h-3 rounded-full bg-emerald-500 border-2 border-white animate-ping" />
+        {/* 1. Header Row: Agent Avatar, Status Tags, Timer & Cancel Button */}
+        <div className="relative z-10 flex flex-wrap items-center justify-between gap-3 pb-4 border-b border-slate-100">
+          <div className="flex items-center gap-3">
+            <div className="w-10 h-10 rounded-xl bg-amber-500/10 border border-amber-200/60 flex items-center justify-center text-[#914714] shadow-xs shrink-0 relative">
+              <StepIcon className="w-5 h-5 animate-pulse text-amber-700" />
+              <span className="absolute -top-0.5 -right-0.5 w-2.5 h-2.5 rounded-full bg-emerald-500 border-2 border-white animate-ping" />
             </div>
 
-            <div>
-              <div className="flex flex-wrap items-center gap-2 mb-1">
-                <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-emerald-50 border border-emerald-200 text-emerald-800 text-[10px] font-bold tracking-wider uppercase">
-                  <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" />
-                  Live Agent Stream
-                </span>
-                <span className="text-slate-300 font-mono text-xs">•</span>
-                <span className="text-xs font-semibold text-slate-500">
-                  {activeStep.tag}: {activeStep.agent}
-                </span>
-                <span className="text-slate-300 font-mono text-xs">•</span>
-                <span className="text-xs font-mono font-bold text-slate-700 bg-slate-100 px-2 py-0.5 rounded-md">
-                  ⏱ {formatTimer(elapsedSeconds)}
-                </span>
-              </div>
+            <div className="flex items-center gap-2 flex-wrap">
+              <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-emerald-50 border border-emerald-200/80 text-emerald-800 text-[10px] font-bold tracking-wider uppercase shadow-2xs whitespace-nowrap">
+                <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" />
+                Live Agent Stream
+              </span>
 
-              <h3 className="text-lg sm:text-xl font-extrabold text-slate-900 tracking-tight">
-                {activeStep.headline}...
-              </h3>
-              <p className="text-xs text-slate-500 max-w-xl mt-1 leading-relaxed">
-                {activeStep.log}
-              </p>
+              <span className="inline-flex items-center px-2.5 py-1 rounded-full bg-slate-100 border border-slate-200/60 text-slate-700 text-xs font-semibold whitespace-nowrap">
+                {activeStep.tag}: {activeStep.agent}
+              </span>
+
+              <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full bg-slate-100 border border-slate-200/60 text-slate-800 text-xs font-mono font-bold whitespace-nowrap">
+                <Clock className="w-3 h-3 text-slate-500" />
+                {formatTimer(elapsedSeconds)}
+              </span>
             </div>
           </div>
 
-          {/* Prompt Constraints Badges */}
-          <div className="flex flex-wrap items-center gap-2 self-start md:self-center shrink-0">
-            <div className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-slate-50 border border-slate-200/80 text-xs text-slate-700 font-semibold">
-              <MapPin className="w-3.5 h-3.5 text-amber-600" />
-              <span>{origin} → {destination}</span>
-            </div>
-            <div className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-slate-50 border border-slate-200/80 text-xs text-slate-700 font-semibold">
-              <Clock className="w-3.5 h-3.5 text-emerald-600" />
-              <span>{wakeUpTime} wake-up</span>
-            </div>
-            <div className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-slate-50 border border-slate-200/80 text-xs text-slate-700 font-semibold font-mono">
-              <Wallet className="w-3.5 h-3.5 text-blue-600" />
-              <span>₹{budget.toLocaleString('en-IN')}</span>
-            </div>
-            {onCancel && (
-              <button
-                type="button"
-                onClick={onCancel}
-                className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl border border-slate-200 bg-white hover:bg-rose-50 hover:border-rose-200 hover:text-rose-700 text-xs font-bold text-slate-700 shadow-2xs transition-colors cursor-pointer"
-              >
-                <ArrowLeft className="w-3.5 h-3.5" />
-                <span>Cancel & Edit</span>
-              </button>
-            )}
-          </div>
+          {onCancel && (
+            <button
+              type="button"
+              onClick={onCancel}
+              className="flex items-center gap-1.5 px-3.5 py-1.5 rounded-xl border border-slate-200 bg-white hover:bg-rose-50 hover:border-rose-200 hover:text-rose-700 text-xs font-bold text-slate-700 shadow-2xs transition-colors cursor-pointer shrink-0"
+            >
+              <ArrowLeft className="w-3.5 h-3.5 text-slate-500" />
+              <span>Cancel & Edit</span>
+            </button>
+          )}
         </div>
 
-        {/* Live Step Tracker Bar */}
-        <div className="mt-5 grid grid-cols-2 sm:grid-cols-5 gap-2">
-          {AGENT_STREAM_STEPS.map((step, idx) => {
-            const isDone = idx < currentStepIndex;
-            const isCurrent = idx === currentStepIndex;
-            return (
-              <div
-                key={step.agent}
-                className={`flex items-center gap-2 px-3 py-2 rounded-xl text-xs transition-all ${
-                  isDone
-                    ? 'bg-emerald-50 text-emerald-900 border border-emerald-200 font-semibold'
-                    : isCurrent
-                    ? 'bg-slate-900 text-white font-bold shadow-xs'
-                    : 'bg-slate-50 text-slate-400 border border-slate-200/60'
-                }`}
-              >
-                {isDone ? (
-                  <CheckCircle2 className="w-3.5 h-3.5 text-emerald-600 shrink-0" />
-                ) : isCurrent ? (
-                  <span className="w-2 h-2 rounded-full bg-amber-400 animate-pulse shrink-0" />
-                ) : (
-                  <span className="w-2 h-2 rounded-full bg-slate-300 shrink-0" />
-                )}
-                <span className="truncate">{step.agent}</span>
-              </div>
-            );
-          })}
+        {/* 2. Main Headline & Narrative Description */}
+        <div className="pt-4 pb-3 space-y-1 relative z-10">
+          <h3 className="text-xl sm:text-2xl font-extrabold text-slate-900 tracking-tight">
+            {activeStep.headline}...
+          </h3>
+          <p className="text-xs sm:text-sm text-slate-500 leading-relaxed max-w-3xl">
+            {activeStep.log}
+          </p>
+        </div>
+
+        {/* 3. Trip Constraints & Context Strip */}
+        <div className="pt-2 pb-5 flex flex-wrap items-center gap-2 relative z-10 border-b border-slate-100">
+          <div className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-slate-50 border border-slate-200/80 text-xs text-slate-700 font-semibold shadow-2xs">
+            <MapPin className="w-3.5 h-3.5 text-amber-600 shrink-0" />
+            <span>{origin} → {destination}</span>
+          </div>
+
+          <div className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-slate-50 border border-slate-200/80 text-xs text-slate-700 font-semibold shadow-2xs">
+            <Calendar className="w-3.5 h-3.5 text-indigo-600 shrink-0" />
+            <span>{days} {days === 1 ? 'Day' : 'Days'}</span>
+          </div>
+
+          <div className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-slate-50 border border-slate-200/80 text-xs text-slate-700 font-semibold shadow-2xs">
+            <Users className="w-3.5 h-3.5 text-emerald-600 shrink-0" />
+            <span>{people} {people === 1 ? 'Traveler' : 'Travelers'}</span>
+          </div>
+
+          <div className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-slate-50 border border-slate-200/80 text-xs text-slate-700 font-semibold font-mono shadow-2xs">
+            <Wallet className="w-3.5 h-3.5 text-blue-600 shrink-0" />
+            <span>₹{budget.toLocaleString('en-IN')}</span>
+          </div>
+
+          {routineNote && (
+            <div
+              className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-amber-50/80 border border-amber-200/80 text-xs text-amber-900 font-medium max-w-sm sm:max-w-md shadow-2xs"
+              title={routineNote}
+            >
+              <Sparkles className="w-3.5 h-3.5 text-amber-600 shrink-0" />
+              <span className="truncate">"{routineNote}"</span>
+            </div>
+          )}
+        </div>
+
+        {/* 4. Live Agent Pipeline Stepper Bar */}
+        <div className="mt-4 relative z-10 space-y-2">
+          <div className="flex items-center justify-between text-[11px] font-bold text-slate-500 uppercase tracking-wider px-0.5">
+            <span>Synthesis Pipeline Progress</span>
+            <span className="font-mono text-slate-700 font-extrabold">{Math.round(((currentStepIndex + 1) / AGENT_STREAM_STEPS.length) * 100)}% Complete</span>
+          </div>
+
+          {/* Animated gradient progress track */}
+          <div className="w-full bg-slate-100 h-1.5 rounded-full overflow-hidden">
+            <div
+              className="h-full bg-gradient-to-r from-emerald-500 via-amber-500 to-indigo-500 rounded-full transition-all duration-500"
+              style={{ width: `${Math.round(((currentStepIndex + 1) / AGENT_STREAM_STEPS.length) * 100)}%` }}
+            />
+          </div>
+
+          {/* Stepper Tabs */}
+          <div className="grid grid-cols-2 sm:grid-cols-5 gap-2 pt-1">
+            {AGENT_STREAM_STEPS.map((step, idx) => {
+              const isDone = idx < currentStepIndex;
+              const isCurrent = idx === currentStepIndex;
+              return (
+                <div
+                  key={step.agent}
+                  className={`flex items-center gap-2 px-3 py-2 rounded-xl text-xs transition-all ${
+                    isDone
+                      ? 'bg-emerald-50 text-emerald-900 border border-emerald-200 font-semibold shadow-2xs'
+                      : isCurrent
+                      ? 'bg-slate-900 text-white font-bold shadow-xs'
+                      : 'bg-slate-50/80 text-slate-400 border border-slate-200/60'
+                  }`}
+                >
+                  {isDone ? (
+                    <CheckCircle2 className="w-3.5 h-3.5 text-emerald-600 shrink-0" />
+                  ) : isCurrent ? (
+                    <span className="w-2 h-2 rounded-full bg-amber-400 animate-pulse shrink-0" />
+                  ) : (
+                    <span className="w-2 h-2 rounded-full bg-slate-300 shrink-0" />
+                  )}
+                  <span className="truncate">{step.agent}</span>
+                </div>
+              );
+            })}
+          </div>
         </div>
       </div>
 

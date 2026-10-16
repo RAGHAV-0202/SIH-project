@@ -1751,8 +1751,8 @@ export default function Planning() {
                   days={days}
                   people={people}
                   budget={budgetInr}
-                  wakeUpTime={memory?.routineText || '08:00 AM'}
-                  routineNote={tripNote}
+                  wakeUpTime="08:00 AM"
+                  routineNote={memory?.routineText || tripNote || ''}
                   onCancel={handleCancelAndGoBack}
                 />
               )}

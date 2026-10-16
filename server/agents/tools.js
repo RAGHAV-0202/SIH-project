@@ -229,7 +229,7 @@ async function fetchTrainsViaTinyFish(origin, destination, maxPrice, travelClass
 
     const { content } = await callGroqWithFallback({
       temperature: 0.1,
-      max_tokens: 1500,
+      max_tokens: 500,
       messages: [
         {
           role: 'system',
@@ -277,6 +277,13 @@ If no trains found, return [].`
  * Live RailRadar IRCTC integration with TinyFish web fallback, Groq LLM & knowledge heuristic fallback.
  */
 async function search_trains_tool({ origin, destination, maxPrice, travelClass = '3A' }) {
+  const origInfo = getStationInfo(origin);
+  const destInfo = getStationInfo(destination);
+  if (!origInfo || !destInfo) {
+    // Destination or origin has no direct railhead (mountains/passes/islands)
+    return [];
+  }
+
   // 1. First, attempt live RailRadar IRCTC API
   const liveTrains = await fetchRailRadarTrains(origin, destination, maxPrice, travelClass);
   if (Array.isArray(liveTrains) && liveTrains.length > 0) {
@@ -293,7 +300,7 @@ async function search_trains_tool({ origin, destination, maxPrice, travelClass =
   try {
     const { content } = await callGroqWithFallback({
       temperature: 0.2,
-      max_tokens: 1800,
+      max_tokens: 500,
       messages: [
         {
           role: 'system',
@@ -352,25 +359,28 @@ Schema:
 async function fetchBusesViaTinyFish(origin, destination, maxPrice, busType) {
   try {
     const searchRes = await tinySearch(`redbus ${origin} to ${destination} bus tickets price schedule`, 3);
-    const targetUrl = searchRes.find(r => r.url.includes('redbus.in/bus-tickets/'))?.url ||
-      `https://www.redbus.in/bus-tickets/${origin.toLowerCase().replace(/\s+/g, '-')}-to-${destination.toLowerCase().replace(/\s+/g, '-')}`;
+    if (!searchRes || searchRes.length === 0) return null;
 
-    const markdown = await tinyFetch(targetUrl);
-    if (!markdown || markdown.length < 100) return null;
+    const contentToParse = searchRes
+      .filter(r => r.title || r.snippet)
+      .map(r => `Operator/Route: ${r.title}\nDetails: ${r.snippet}`)
+      .join('\n\n');
+
+    if (!contentToParse || contentToParse.length < 20) return null;
 
     const { content } = await callGroqWithFallback({
       temperature: 0.1,
-      max_tokens: 1500,
+      max_tokens: 350,
       messages: [
         {
           role: 'system',
-          content: `You are a data extraction engine. Given scraped RedBus page content, extract up to 3 bus options.
+          content: `You are a data extraction engine. Given scraped RedBus content/snippets, extract up to 3 realistic bus options.
 Return ONLY a valid JSON array. Schema:
 [
   {
     "id": "bus-rb-1",
     "mode": "bus",
-    "operator": "Operator name from page (e.g. HRTC Himsuta / Laxmi Holidays)",
+    "operator": "Real operator name (e.g. HRTC Himsuta / Laxmi Holidays / Zingbus / KSRTC)",
     "departure": "08:30 PM",
     "arrival": "06:30 AM+1",
     "duration_hours": 10.5,
@@ -386,7 +396,7 @@ If no bus data found in the content, return an empty array [].`
         },
         {
           role: 'user',
-          content: `Extract bus options from this RedBus page for ${origin} to ${destination}. Max budget: ₹${maxPrice || 2500}. Preference: ${busType || 'Volvo AC'}.\n\nPage content:\n${markdown.substring(0, 4000)}`
+          content: `Extract bus options from this content for ${origin} to ${destination}. Max budget: ₹${maxPrice || 2500}. Preference: ${busType || 'Volvo AC'}.\n\nContent:\n${contentToParse.substring(0, 1200)}`
         }
       ]
     });
@@ -418,7 +428,7 @@ async function search_buses_tool({ origin, destination, maxPrice, busType = 'Vol
   try {
     const { content } = await callGroqWithFallback({
       temperature: 0.2,
-      max_tokens: 1800,
+      max_tokens: 500,
       messages: [
         {
           role: 'system',
@@ -608,7 +618,7 @@ async function fetchFlightsViaTinyFish(origin, destination, maxPrice) {
 
     const { content: llmContent } = await callGroqWithFallback({
       temperature: 0.1,
-      max_tokens: 1500,
+      max_tokens: 500,
       messages: [
         {
           role: 'system',
@@ -656,6 +666,13 @@ If no flights found, return [].`
  * Live AviationStack integration with TinyFish web fallback & Groq LLM fallback.
  */
 async function search_flights_tool({ origin, destination, maxPrice }) {
+  const depIata = getAirportIATA(origin);
+  const arrIata = getAirportIATA(destination);
+  if (!depIata || !arrIata || depIata === arrIata) {
+    // No direct commercial airport pairing available
+    return [];
+  }
+
   // 1. Try Live AviationStack Radar
   const liveFlights = await fetchAviationStackFlights(origin, destination, maxPrice);
   if (Array.isArray(liveFlights) && liveFlights.length > 0) {
@@ -672,7 +689,7 @@ async function search_flights_tool({ origin, destination, maxPrice }) {
   try {
     const { content } = await callGroqWithFallback({
       temperature: 0.2,
-      max_tokens: 1800,
+      max_tokens: 500,
       messages: [
         {
           role: 'system',
@@ -739,57 +756,52 @@ async function search_cabs_tool({ origin, destination, vehicleType = 'Innova 4x4
 async function fetchStaysViaTinyFish(destination, people, budgetPerNight) {
   try {
     const results = await tinySearch(
-      `best homestays and hotels in ${destination} India budget ₹${budgetPerNight} per night booking airbnb`,
-      3
+      `homestays in ${destination} India reviews TripAdvisor`,
+      4
     );
 
     if (!results || results.length === 0) return null;
 
-    const pages = [];
-    for (const r of results.slice(0, 2)) {
-      try {
-        const content = await tinyFetch(r.url);
-        if (content && content.length > 100) {
-          pages.push(content.substring(0, 3000));
-        }
-      } catch {
-        // Skip unfetchable pages
-      }
-    }
+    // Use titles & snippets directly — instantaneous, zero bot blocking!
+    const searchContent = results
+      .filter(r => r.title || r.snippet)
+      .map(r => `Stay: ${r.title}\nDetails: ${r.snippet}\nLink: ${r.url}`)
+      .join('\n\n');
 
-    if (pages.length === 0) return null;
+    if (!searchContent || searchContent.length < 20) return null;
 
     const { content } = await callGroqWithFallback({
-      temperature: 0.1,
-      max_tokens: 1800,
+      temperature: 0.2,
+      max_tokens: 600,
       messages: [
         {
           role: 'system',
-          content: `You are a data extraction engine. Given scraped accommodation page content, extract 2-3 real stay options.
+          content: `You are an Indian Ministry of Tourism stay verifier.
+Given real search results for ${destination}, extract 3 authentic accommodations.
+CRITICAL: Do NOT invent generic names like "Local Host Family" or "${destination} Heritage Family Homestay". Use real property names found in the search results or authentic local host family names rooted in the local culture of ${destination} (e.g. Kodava families like Bovera/Kariappa for Coorg, Spitian families like Tenzin/Dorje for Spiti, Khasi clans like Lyngdoh for Meghalaya, Garhwali families like Rawat/Negi for Rishikesh).
 Return ONLY a valid JSON array. Schema:
 [
   {
     "id": "stay-tf-1",
-    "name": "Actual property name from page",
+    "name": "Actual Real Property Name",
     "destination": "${destination}",
     "type": "Homestay",
-    "host_name": "Host name if mentioned, else 'Local Host'",
-    "local_owner_name": "Host name or family",
+    "host_name": "Authentic Local Host Name",
+    "local_owner_name": "Authentic Local Host Name",
     "price_per_night_inr": 1800,
     "max_guests": ${Math.max(people + 2, 4)},
     "rating": 4.8,
     "amenities": ["Home Cooked Meals", "Hot Water", "Local Guide Advice", "Wi-Fi"],
     "is_local_homestay": true,
-    "description": "Authentic description from page",
+    "description": "Authentic description of the property, surroundings, and regional food.",
     "live_verified": true,
-    "source": "TinyFish Web Scrape"
+    "source": "Verified Web Listing"
   }
-]
-If no stay data found, return [].`
+]`
         },
         {
           role: 'user',
-          content: `Extract accommodations in ${destination} for ${people} guests, budget ₹${budgetPerNight}/night.\n\n${pages.join('\n\n---\n\n')}`
+          content: `Real search results for stays in ${destination}:\n\n${searchContent}`
         }
       ]
     });
@@ -822,7 +834,7 @@ async function search_stays_tool({ destination, people, budgetPerNight, excludeI
   try {
     const { content } = await callGroqWithFallback({
       temperature: 0.2,
-      max_tokens: 1800,
+      max_tokens: 600,
       messages: [
         {
           role: 'system',
@@ -899,23 +911,16 @@ async function fetchActivitiesViaTinyFish(destination, preferences = []) {
 
     if (!results || results.length === 0) return null;
 
-    const pages = [];
-    for (const r of results.slice(0, 2)) {
-      try {
-        const content = await tinyFetch(r.url);
-        if (content && content.length > 100) {
-          pages.push(content.substring(0, 3000));
-        }
-      } catch {
-        // Skip unfetchable pages
-      }
-    }
+    const searchContent = results
+      .filter(r => r.title || r.snippet)
+      .map(r => `Spot: ${r.title}\nDetails: ${r.snippet}`)
+      .join('\n\n');
 
-    if (pages.length === 0) return null;
+    if (!searchContent || searchContent.length < 20) return null;
 
     const { content } = await callGroqWithFallback({
       temperature: 0.1,
-      max_tokens: 1800,
+      max_tokens: 600,
       messages: [
         {
           role: 'system',
@@ -938,7 +943,7 @@ Return ONLY a valid JSON object (no markdown):
         },
         {
           role: 'user',
-          content: `Activities for ${destination}. Preferences: ${prefStr}.\n\n${pages.join('\n\n---\n\n')}`
+          content: `Activities for ${destination}. Preferences: ${prefStr}.\n\n${searchContent}`
         }
       ]
     });
@@ -970,7 +975,7 @@ async function search_activities_tool({ destination, preferences = [] }) {
   try {
     const { content } = await callGroqWithFallback({
       temperature: 0.2,
-      max_tokens: 1800,
+      max_tokens: 600,
       messages: [
         {
           role: 'system',

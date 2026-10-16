@@ -6,11 +6,9 @@ function getGroqClient() {
 
 const GROQ_FALLBACK_MODELS = [
   'openai/gpt-oss-20b',
-  'openai/gpt-oss-120b',
   'qwen/qwen3.8-27b',
-  'qwen/qwen3.6-27b',
-  'groq/compound-mini',
-  'groq/compound',
+  'openai/gpt-oss-120b',
+  'allam-2-7b',
 ];
 
 /**
@@ -19,7 +17,7 @@ const GROQ_FALLBACK_MODELS = [
 async function callGroqWithFallback({
   messages,
   temperature = 0.1,
-  max_tokens = 1500,
+  max_tokens = 800,
   response_format = null,
   preferredModel = null,
 }) {

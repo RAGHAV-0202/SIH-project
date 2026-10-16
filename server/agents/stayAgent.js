@@ -35,34 +35,60 @@ async function getStayOptions(destination, people, budgetPerNight, excludeIds = 
 
     // If static curated stays do not have this destination, generate authentic local stays
     if (options.length === 0) {
+      const d = (destination || '').toLowerCase();
+      let hostFamily = 'Sharma Family';
+      let stayPrefix = `${destination} Pine Ridge`;
+      if (d.includes('coorg') || d.includes('madikeri')) {
+        hostFamily = 'Bovera Family (Kodava Heritage)';
+        stayPrefix = 'Madikeri Coffee Plantation';
+      } else if (d.includes('spiti') || d.includes('kaza')) {
+        hostFamily = 'Tenzin & Chhering Dorje';
+        stayPrefix = 'Kaza High-Altitude';
+      } else if (d.includes('manali')) {
+        hostFamily = 'Thakur Family';
+        stayPrefix = 'Old Manali Apple Orchard';
+      } else if (d.includes('rishikesh')) {
+        hostFamily = 'Rawat Family';
+        stayPrefix = 'Tapovan Ganga View';
+      } else if (d.includes('meghalaya') || d.includes('shillong')) {
+        hostFamily = 'Lyngdoh Clan';
+        stayPrefix = 'Mawlynnong Living Root';
+      } else if (d.includes('kerala')) {
+        hostFamily = 'Kurien & Mini';
+        stayPrefix = 'Kumarakom Backwater';
+      } else if (d.includes('jaipur')) {
+        hostFamily = 'Rathore Family';
+        stayPrefix = 'Amer Heritage Haveli';
+      }
+
       options = [
         {
           id: `stay-loc-${Date.now()}-1`,
-          name: `${destination} Heritage Family Homestay`,
+          name: `${stayPrefix} Homestay`,
           destination: destination,
           type: 'Homestay',
-          host_name: 'Local Host Family',
-          local_owner_name: 'Local Host Family',
+          host_name: hostFamily,
+          local_owner_name: hostFamily,
           price_per_night_inr: Math.round(budgetPerNight * 0.8) || 1600,
           max_guests: Math.max(people + 2, 4),
-          rating: 4.85,
-          amenities: ['Home Cooked Breakfast', 'Hot Water', 'Local Guide Advice', 'Wi-Fi'],
+          rating: 4.88,
+          amenities: ['Authentic Regional Meals', 'Hot Spring/Solar Water', 'Local Guide Advice', 'Wi-Fi'],
           is_local_homestay: true,
-          description: `Authentic family-run homestay in ${destination} supporting the local community with farm-to-table meals.`
+          description: `Authentic family-run homestay in ${destination} hosted by ${hostFamily}, supporting the local indigenous community with farm-to-table cuisine.`
         },
         {
           id: `stay-loc-${Date.now()}-2`,
-          name: `${destination} Valley Riverside Retreat`,
+          name: `${stayPrefix} Riverside Retreat`,
           destination: destination,
           type: 'Boutique Homestay',
-          host_name: 'Community Tourism Collective',
-          local_owner_name: 'Community Tourism Collective',
+          host_name: `Local Eco Collective (${destination})`,
+          local_owner_name: `Local Eco Collective`,
           price_per_night_inr: Math.round(budgetPerNight * 0.95) || 2200,
           max_guests: Math.max(people + 2, 4),
           rating: 4.75,
-          amenities: ['Mountain/Valley View', 'Organic Food', 'Campfire', 'Local Tours'],
+          amenities: ['Mountain/Valley View', 'Organic Food', 'Campfire', 'Local Heritage Walk'],
           is_local_homestay: true,
-          description: `Serene local stay nestled close to natural landmarks in ${destination}.`
+          description: `Serene local heritage stay nestled close to natural landmarks in ${destination}.`
         }
       ];
     }

@@ -3,6 +3,16 @@
  * Wraps @tiny-fish/sdk search and fetch capabilities with lazy ESM import.
  */
 
+const TIMEOUT_MS = 3500; // 3.5s max
+
+function withTimeout(promise, ms = TIMEOUT_MS, label = 'Operation') {
+  let timer;
+  const timeoutPromise = new Promise((_, reject) => {
+    timer = setTimeout(() => reject(new Error(`${label} timed out after ${ms}ms`)), ms);
+  });
+  return Promise.race([promise, timeoutPromise]).finally(() => clearTimeout(timer));
+}
+
 let cachedClient = null;
 
 async function getClient() {
@@ -14,7 +24,7 @@ async function getClient() {
   }
 
   const { TinyFish } = await import('@tiny-fish/sdk');
-  cachedClient = new TinyFish({ apiKey });
+  cachedClient = new TinyFish({ apiKey, timeout: 3500, maxRetries: 0 });
   return cachedClient;
 }
 
@@ -27,7 +37,11 @@ async function getClient() {
 async function tinySearch(query, maxResults = 5) {
   try {
     const client = await getClient();
-    const res = await client.search.query({ query });
+    const res = await withTimeout(
+      client.search.query({ query }),
+      TIMEOUT_MS,
+      `TinySearch "${query}"`
+    );
     const results = (res.results || []).slice(0, maxResults);
     return results.map(r => ({
       title: r.title || '',
@@ -50,10 +64,14 @@ async function tinySearch(query, maxResults = 5) {
 async function tinyFetch(url) {
   try {
     const client = await getClient();
-    const res = await client.fetch.getContents({
-      urls: [url],
-      format: 'markdown',
-    });
+    const res = await withTimeout(
+      client.fetch.getContents({
+        urls: [url],
+        format: 'markdown',
+      }),
+      TIMEOUT_MS,
+      `TinyFetch "${url}"`
+    );
 
     const item = res.results?.[0];
     if (item && item.text) {

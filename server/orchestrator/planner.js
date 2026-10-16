@@ -70,6 +70,7 @@ async function planTrip(userPrompt, sendStatus, userMemory = null, explicitParam
     constraints.constraints.earliest_start_time = mergedMemory.wakeUpTime;
 
     emit('intent', 'complete', {
+      constraints,
       destination: constraints.destination,
       days: constraints.days,
       budget: constraints.budget_inr,
@@ -77,9 +78,12 @@ async function planTrip(userPrompt, sendStatus, userMemory = null, explicitParam
       user_memory: mergedMemory,
     });
 
-    // ─── Step 2: Transport Agent ─────────────────────────────
+    // ─── Step 2, 3, 4: Concurrent Agents with Real-Time SSE Streaming ───
     emit('transport', 'running');
-    const [outboundOptions, returnOptions] = await Promise.all([
+    emit('stay', 'running');
+    emit('activity', 'running');
+
+    const transportPromise = Promise.all([
       getTransportOptions(
         constraints.origin,
         constraints.destination,
@@ -92,36 +96,52 @@ async function planTrip(userPrompt, sendStatus, userMemory = null, explicitParam
         constraints.budget_inr,
         constraints.constraints.max_travel_hours_per_day
       )
-    ]);
-    emit('transport', 'complete', {
-      outbound_count: outboundOptions.length,
-      return_count: returnOptions.length,
-      best_outbound: outboundOptions[0]?.operator,
-      best_return: returnOptions[0]?.operator,
+    ]).then(([outbound, ret]) => {
+      emit('transport', 'complete', {
+        outbound_options: outbound,
+        return_options: ret,
+        outbound_count: outbound.length,
+        return_count: ret.length,
+        best_outbound: outbound[0]?.operator,
+        best_return: ret[0]?.operator,
+      });
+      return [outbound, ret];
     });
 
-    // ─── Step 3: Stay Agent ──────────────────────────────────
-    emit('stay', 'running');
-    const stayOptions = await getStayOptions(
+    const stayPromise = getStayOptions(
       constraints.destination,
       constraints.people,
       constraints.budget_inr / (constraints.days * constraints.people)
-    );
-    emit('stay', 'complete', {
-      count: stayOptions.length,
-      top_pick: stayOptions[0]?.name,
-      is_local: stayOptions[0]?.is_local_homestay,
+    ).then((stays) => {
+      emit('stay', 'complete', {
+        stay_options: stays,
+        count: stays.length,
+        top_pick: stays[0]?.name,
+        is_local: stays[0]?.is_local_homestay,
+      });
+      return stays;
     });
 
-    // ─── Step 4: Activity & Weather Agent ───────────────────
-    emit('activity', 'running');
-    const activities = await getActivities(constraints.destination, constraints.preferences);
-    emit('activity', 'complete', {
-      outdoor_count: activities.outdoor.length,
-      indoor_count: activities.indoor.length,
-      food_specialties: activities.food_specialties.length,
-      weather_monitored: true,
+    const activityPromise = getActivities(
+      constraints.destination,
+      constraints.preferences
+    ).then((acts) => {
+      emit('activity', 'complete', {
+        activities: acts,
+        outdoor_count: acts.outdoor.length,
+        indoor_count: acts.indoor.length,
+        food_specialties: acts.food_specialties.length,
+        weather_monitored: true,
+      });
+      return acts;
     });
+
+    // Await all parallel agent streams before optimization
+    const [[outboundOptions, returnOptions], stayOptions, activities] = await Promise.all([
+      transportPromise,
+      stayPromise,
+      activityPromise
+    ]);
 
     // ─── Step 5: Optimizer ───────────────────────────────────
     emit('optimizer', 'running');
@@ -133,6 +153,7 @@ async function planTrip(userPrompt, sendStatus, userMemory = null, explicitParam
       activities
     );
     emit('optimizer', 'complete', {
+      itinerary: itinerary,
       total_cost: itinerary.cost_breakdown.total,
       budget_remaining: itinerary.budget_remaining,
       stay_name: itinerary.selected_stay?.name,
@@ -141,7 +162,16 @@ async function planTrip(userPrompt, sendStatus, userMemory = null, explicitParam
     });
 
     // ─── Done ────────────────────────────────────────────────
-    emit('done', 'complete');
+    emit('done', 'complete', {
+      itinerary,
+      constraints,
+      transport_options: {
+        outbound: outboundOptions,
+        return: returnOptions,
+      },
+      stay_options: stayOptions,
+      activities: activities,
+    });
 
     return {
       success: true,

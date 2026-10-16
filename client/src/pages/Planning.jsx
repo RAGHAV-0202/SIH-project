@@ -2,12 +2,13 @@ import React, { useEffect, useState, useRef } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { useTrip } from '../context/TripContext';
 import { useMemory } from '../context/MemoryContext';
-import { planTrip, extractTripIntent } from '../services/api';
+import { planTrip, planTripStream, extractTripIntent } from '../services/api';
 import Navbar from '../components/Navbar';
 import TransportSelectionScene from '../components/TransportSelectionScene';
 import StaySelectionScene from '../components/StaySelectionScene';
 import ActivitySelectionScene from '../components/ActivitySelectionScene';
 import ExpeditionReviewScene from '../components/ExpeditionReviewScene';
+import PlanningStreamSkeleton from '../components/PlanningStreamSkeleton';
 import {
   Compass,
   CheckCircle2,
@@ -17,6 +18,7 @@ import {
   ShieldCheck,
   Cpu,
   ArrowRight,
+  ArrowLeft,
   MapPin,
   Utensils,
   Brain,
@@ -688,10 +690,28 @@ export default function Planning() {
   const [error, setError] = useState('');
 
   const hasRun = useRef(false);
+  const abortControllerRef = useRef(null);
   const transportDecisionResolver = useRef(null);
   const stayDecisionResolver = useRef(null);
   const activityDecisionResolver = useRef(null);
   const reviewDecisionResolver = useRef(null);
+
+  const handleCancelAndGoBack = () => {
+    if (abortControllerRef.current) {
+      abortControllerRef.current.abort();
+      abortControllerRef.current = null;
+    }
+    hasRun.current = false;
+    setIsExecuting(false);
+    setIsSpawning(false);
+    setShowTransportScene(false);
+    setShowStayScene(false);
+    setShowActivityScene(false);
+    setShowReviewScene(false);
+    setActiveStepIndex(0);
+    setError('');
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  };
 
   // Auto-run ONLY if explicitly requested via autoRun
   useEffect(() => {
@@ -727,7 +747,7 @@ export default function Planning() {
       setIsExecuting(true);
       hasRun.current = true;
       runPipeline(synthesizedPrompt);
-    }, 600);
+    }, 400);
   };
 
   async function runPipeline(promptToRun) {
@@ -737,8 +757,78 @@ export default function Planning() {
     const activeDest = (customDestination && customDestination.trim()) || destination || selectedCorridor.sector;
     setDestination(activeDest);
 
-    try {
-      const planPromise = planTrip(promptToRun, {
+    if (abortControllerRef.current) {
+      abortControllerRef.current.abort();
+    }
+    const abortController = new AbortController();
+    abortControllerRef.current = abortController;
+
+    // Stage resolvers for real-time SSE stream delivery
+    let transportResolver;
+    const transportReadyPromise = new Promise((resolve) => {
+      transportResolver = resolve;
+    });
+
+    let stayResolver;
+    const stayReadyPromise = new Promise((resolve) => {
+      stayResolver = resolve;
+    });
+
+    let activityResolver;
+    const activityReadyPromise = new Promise((resolve) => {
+      activityResolver = resolve;
+    });
+
+    let finalResultResolver;
+    const finalResultReadyPromise = new Promise((resolve) => {
+      finalResultResolver = resolve;
+    });
+
+    // Start background SSE stream
+    planTripStream({
+      prompt: promptToRun,
+      userMemory: {
+        routineText: memory?.routineText || '',
+        notes: memory?.notes || [],
+        tripSpecificNote: tripNote,
+      },
+      tripParams: {
+        destination: activeDest,
+        origin: originCity ? originCity.trim() : '',
+        days,
+        people,
+        budget: budgetInr,
+      },
+      signal: abortController.signal,
+      onStep: (event) => {
+        const { step, status, data } = event;
+        if (status === 'complete') {
+          if (step === 'intent' && data?.destination) {
+            setDestination(data.destination);
+          } else if (step === 'transport') {
+            const opts = data?.outbound_options || [];
+            if (opts.length > 0) {
+              setTransportOptions(opts);
+              transportResolver(opts);
+            }
+          } else if (step === 'stay') {
+            const stays = data?.stay_options || [];
+            setStayOptions(stays);
+            stayResolver(stays);
+          } else if (step === 'activity') {
+            const acts = data?.activities || { outdoor: [], indoor: [] };
+            setActivitiesData(acts);
+            activityResolver(acts);
+          } else if (step === 'optimizer' || step === 'result') {
+            finalResultResolver(data);
+          }
+        }
+      },
+    }).catch((err) => {
+      if (err.name === 'AbortError') return;
+      console.warn('SSE stream error, trying fallback:', err);
+      // Fallback to standard planTrip if SSE fails
+      planTrip(promptToRun, {
         routineText: memory?.routineText || '',
         notes: memory?.notes || [],
         tripSpecificNote: tripNote,
@@ -748,25 +838,31 @@ export default function Planning() {
         days,
         people,
         budget: budgetInr,
+      }).then((res) => {
+        if (res && res.success) {
+          if (res.transport_options?.outbound) {
+            setTransportOptions(res.transport_options.outbound);
+            transportResolver(res.transport_options.outbound);
+          }
+          if (res.stay_options) {
+            setStayOptions(res.stay_options);
+            stayResolver(res.stay_options);
+          }
+          if (res.activities) {
+            setActivitiesData(res.activities);
+            activityResolver(res.activities);
+          }
+          finalResultResolver(res);
+        }
       });
+    });
 
-      // Pipeline timing animation
-      await new Promise((r) => setTimeout(r, 600));
-      const result = await planPromise;
-      if (!result.success) throw new Error(result.error || 'Pipeline planning failed');
+    try {
+      // ─── STAGE 1: Wait for Transport data (~1-2 seconds) ─────────
+      // Immediately opens transport scene as soon as transport agent finishes!
+      const opts = await transportReadyPromise;
+      if (abortController.signal.aborted) return;
 
-      setPendingResult(result);
-      const dest = result.itinerary?.destination || activeDest;
-      setDestination(dest);
-
-      const opts = result.transport_options?.outbound || [result.itinerary?.selected_transport_outbound].filter(Boolean);
-      setTransportOptions(opts);
-      const stays = result.stay_options || [];
-      setStayOptions(stays);
-      const acts = result.activities || { outdoor: result.itinerary?.activities || [], indoor: [] };
-      setActivitiesData(acts);
-
-      // Advance to Step 2: Transport Scene
       setActiveStepIndex(1);
       setShowTransportScene(true);
       window.scrollTo({ top: 0, behavior: 'smooth' });
@@ -775,10 +871,15 @@ export default function Planning() {
       const transportDecision = await new Promise((resolve) => {
         transportDecisionResolver.current = resolve;
       });
+      if (abortController.signal.aborted) return;
       setChosenTransport(transportDecision);
       setShowTransportScene(false);
 
-      // Advance to Step 3: Stay Scene
+      // ─── STAGE 2: Stay Scene ─────────────────────────────────────
+      // By now, stay options are already delivered via SSE or finishing!
+      const stays = await stayReadyPromise;
+      if (abortController.signal.aborted) return;
+
       setActiveStepIndex(2);
       setShowStayScene(true);
       window.scrollTo({ top: 0, behavior: 'smooth' });
@@ -787,10 +888,14 @@ export default function Planning() {
       const stayDecision = await new Promise((resolve) => {
         stayDecisionResolver.current = resolve;
       });
+      if (abortController.signal.aborted) return;
       setChosenStay(stayDecision);
       setShowStayScene(false);
 
-      // Advance to Step 4: Activities Scene
+      // ─── STAGE 3: Activities Scene ───────────────────────────────
+      await activityReadyPromise;
+      if (abortController.signal.aborted) return;
+
       setActiveStepIndex(3);
       setShowActivityScene(true);
       window.scrollTo({ top: 0, behavior: 'smooth' });
@@ -799,11 +904,16 @@ export default function Planning() {
       const activityDecision = await new Promise((resolve) => {
         activityDecisionResolver.current = resolve;
       });
+      if (abortController.signal.aborted) return;
       const resolvedActivities = activityDecision || [];
       setChosenActivities(resolvedActivities);
       setShowActivityScene(false);
 
-      // Advance to Step 5: Final Expedition Review & Lock
+      // ─── STAGE 4: Final Expedition Review & Lock ─────────────────
+      const result = await finalResultReadyPromise;
+      if (abortController.signal.aborted) return;
+      setPendingResult(result);
+
       setActiveStepIndex(4);
       setShowReviewScene(true);
       window.scrollTo({ top: 0, behavior: 'smooth' });
@@ -812,17 +922,18 @@ export default function Planning() {
       await new Promise((resolve) => {
         reviewDecisionResolver.current = resolve;
       });
+      if (abortController.signal.aborted) return;
       setShowReviewScene(false);
 
       // Finalize and save
-      let finalItinerary = result.itinerary;
-      if (transportDecision && transportDecision.id !== result.itinerary?.selected_transport_outbound?.id) {
+      let finalItinerary = result?.itinerary || result;
+      if (transportDecision && transportDecision.id !== finalItinerary?.selected_transport_outbound?.id) {
         finalItinerary = {
           ...finalItinerary,
           selected_transport_outbound: transportDecision,
         };
       }
-      if (stayDecision && stayDecision.id !== result.itinerary?.selected_stay?.id) {
+      if (stayDecision && stayDecision.id !== finalItinerary?.selected_stay?.id) {
         finalItinerary = {
           ...finalItinerary,
           selected_stay: stayDecision,
@@ -846,6 +957,7 @@ export default function Planning() {
       navigate('/dashboard', { state: { itinerary: finalItinerary } });
 
     } catch (err) {
+      if (err.name === 'AbortError') return;
       console.error('Pipeline error:', err);
       setError(err.message || 'Failed to generate expedition matrix');
       setIsExecuting(false);
@@ -1428,6 +1540,17 @@ export default function Planning() {
             <section className="w-full bg-white border-b border-slate-200/80 px-4 sm:px-6 py-4 shadow-2xs">
               <div className="max-w-7xl mx-auto flex flex-col md:flex-row items-center justify-between gap-4">
                 
+                {/* Back to Planner Button */}
+                <button
+                  type="button"
+                  onClick={handleCancelAndGoBack}
+                  className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl border border-slate-200 bg-white hover:bg-slate-50 text-xs font-bold text-slate-700 shadow-2xs transition-colors cursor-pointer shrink-0"
+                  title="Return to setup and edit constraints"
+                >
+                  <ArrowLeft className="w-3.5 h-3.5 text-slate-500" />
+                  <span>Back to Planner</span>
+                </button>
+                
                 {/* Stepper Badges */}
                 <div className="flex items-center gap-2 overflow-x-auto w-full md:w-auto py-1 no-scrollbar text-xs">
                   
@@ -1620,21 +1743,18 @@ export default function Planning() {
                 </div>
               )}
 
-              {/* Background Engine Loading State (when between scenes or initial synthesis) */}
+              {/* Live Streaming Response & Shimmer Skeletons (Active synthesis state) */}
               {!showTransportScene && !showStayScene && !showActivityScene && !showReviewScene && (
-                <div className="w-full bg-white p-12 rounded-3xl border border-slate-200/80 shadow-xs flex flex-col items-center justify-center text-center space-y-4">
-                  <div className="w-14 h-14 rounded-2xl bg-[#EAEDFF] border border-[#DAE2FD] flex items-center justify-center text-[#914714] shadow-2xs">
-                    <Compass className="w-7 h-7 animate-spin" />
-                  </div>
-                  <div>
-                    <h3 className="text-lg font-bold text-[#131B2E]">
-                      Synthesizing your trip itinerary...
-                    </h3>
-                    <p className="text-xs text-[#4F5D72] max-w-md mt-1">
-                      Curating verified local homestays with direct community escrow, and scheduling daily itineraries around your {memory?.routineText || '08:00 AM'} wake-up pace.
-                    </p>
-                  </div>
-                </div>
+                <PlanningStreamSkeleton
+                  destination={destination || selectedCorridor?.sector || 'Destination'}
+                  origin={originCity || 'Delhi'}
+                  days={days}
+                  people={people}
+                  budget={budgetInr}
+                  wakeUpTime={memory?.routineText || '08:00 AM'}
+                  routineNote={tripNote}
+                  onCancel={handleCancelAndGoBack}
+                />
               )}
 
             </div>

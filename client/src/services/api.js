@@ -121,6 +121,50 @@ export async function planTrip(prompt, userMemory = null, tripParams = {}) {
   return safeJson(res, 'Backend service unavailable. Please ensure server is running.');
 }
 
+/**
+ * Plans a trip using Server-Sent Events (SSE) streaming.
+ * Emits real-time agent step events with data payloads as soon as each specialist completes.
+ */
+export async function planTripStream({ prompt, userMemory = null, tripParams = {}, onStep, signal }) {
+  const res = await fetch(`${API_BASE}/trip/plan-stream`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ prompt, userMemory, ...tripParams }),
+    signal,
+  });
+
+  if (!res.ok) {
+    const errorText = await res.text();
+    throw new Error(errorText || `Planning stream failed (${res.status})`);
+  }
+
+  const reader = res.body.getReader();
+  const decoder = new TextDecoder('utf-8');
+  let buffer = '';
+
+  while (true) {
+    const { done, value } = await reader.read();
+    if (done) break;
+
+    buffer += decoder.decode(value, { stream: true });
+    const chunks = buffer.split('\n\n');
+    buffer = chunks.pop() || '';
+
+    for (const chunk of chunks) {
+      const line = chunk.trim();
+      if (!line) continue;
+      if (line.startsWith('data: ')) {
+        try {
+          const payload = JSON.parse(line.substring(6));
+          if (onStep) onStep(payload);
+        } catch (e) {
+          console.warn('SSE stream event parse warning:', e);
+        }
+      }
+    }
+  }
+}
+
 export async function getUserMemory(token) {
   const headers = token ? { Authorization: `Bearer ${token}` } : {};
   const res = await fetch(`${API_BASE}/user/memory`, { headers });

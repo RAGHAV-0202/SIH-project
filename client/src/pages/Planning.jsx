@@ -763,27 +763,6 @@ export default function Planning() {
     const abortController = new AbortController();
     abortControllerRef.current = abortController;
 
-    // Stage resolvers for real-time SSE stream delivery
-    let transportResolver;
-    const transportReadyPromise = new Promise((resolve) => {
-      transportResolver = resolve;
-    });
-
-    let stayResolver;
-    const stayReadyPromise = new Promise((resolve) => {
-      stayResolver = resolve;
-    });
-
-    let activityResolver;
-    const activityReadyPromise = new Promise((resolve) => {
-      activityResolver = resolve;
-    });
-
-    let finalResultResolver;
-    const finalResultReadyPromise = new Promise((resolve) => {
-      finalResultResolver = resolve;
-    });
-
     // Start background SSE stream
     planTripStream({
       prompt: promptToRun,
@@ -801,6 +780,7 @@ export default function Planning() {
       },
       signal: abortController.signal,
       onStep: (event) => {
+        if (abortController.signal.aborted) return;
         const { step, status, data } = event;
         if (status === 'complete') {
           if (step === 'intent' && data?.destination) {
@@ -809,18 +789,23 @@ export default function Planning() {
             const opts = data?.outbound_options || [];
             if (opts.length > 0) {
               setTransportOptions(opts);
-              transportResolver(opts);
+              setChosenTransport((prev) => prev || opts[0]);
+              // Seamlessly reveal transport scene as soon as transport resolves!
+              setActiveStepIndex((prev) => (prev === 0 ? 1 : prev));
+              window.scrollTo({ top: 0, behavior: 'smooth' });
             }
           } else if (step === 'stay') {
             const stays = data?.stay_options || [];
-            setStayOptions(stays);
-            stayResolver(stays);
+            if (stays.length > 0) {
+              setStayOptions(stays);
+              setChosenStay((prev) => prev || stays[0]);
+            }
           } else if (step === 'activity') {
             const acts = data?.activities || { outdoor: [], indoor: [] };
             setActivitiesData(acts);
-            activityResolver(acts);
-          } else if (step === 'optimizer' || step === 'result') {
-            finalResultResolver(data);
+            setChosenActivities((prev) => (prev.length > 0 ? prev : acts.outdoor?.slice(0, 3) || []));
+          } else if (step === 'optimizer' || step === 'result' || step === 'done') {
+            setPendingResult(data);
           }
         }
       },
@@ -839,131 +824,60 @@ export default function Planning() {
         people,
         budget: budgetInr,
       }).then((res) => {
+        if (abortController.signal.aborted) return;
         if (res && res.success) {
           if (res.transport_options?.outbound) {
             setTransportOptions(res.transport_options.outbound);
-            transportResolver(res.transport_options.outbound);
+            setChosenTransport((prev) => prev || res.transport_options.outbound[0]);
+            setActiveStepIndex((prev) => (prev === 0 ? 1 : prev));
           }
           if (res.stay_options) {
             setStayOptions(res.stay_options);
-            stayResolver(res.stay_options);
+            setChosenStay((prev) => prev || res.stay_options[0]);
           }
           if (res.activities) {
             setActivitiesData(res.activities);
-            activityResolver(res.activities);
+            setChosenActivities((prev) => (prev.length > 0 ? prev : res.activities.outdoor?.slice(0, 3) || []));
           }
-          finalResultResolver(res);
+          setPendingResult(res);
         }
+      }).catch((fallbackErr) => {
+        if (fallbackErr.name === 'AbortError') return;
+        setError(fallbackErr.message || 'Failed to synthesize expedition');
       });
     });
-
-    try {
-      // ─── STAGE 1: Wait for Transport data (~1-2 seconds) ─────────
-      // Immediately opens transport scene as soon as transport agent finishes!
-      const opts = await transportReadyPromise;
-      if (abortController.signal.aborted) return;
-
-      setActiveStepIndex(1);
-      setShowTransportScene(true);
-      window.scrollTo({ top: 0, behavior: 'smooth' });
-
-      // Wait for traveler transport decision
-      const transportDecision = await new Promise((resolve) => {
-        transportDecisionResolver.current = resolve;
-      });
-      if (abortController.signal.aborted) return;
-      setChosenTransport(transportDecision);
-      setShowTransportScene(false);
-
-      // ─── STAGE 2: Stay Scene ─────────────────────────────────────
-      // By now, stay options are already delivered via SSE or finishing!
-      const stays = await stayReadyPromise;
-      if (abortController.signal.aborted) return;
-
-      setActiveStepIndex(2);
-      setShowStayScene(true);
-      window.scrollTo({ top: 0, behavior: 'smooth' });
-
-      // Wait for traveler stay decision
-      const stayDecision = await new Promise((resolve) => {
-        stayDecisionResolver.current = resolve;
-      });
-      if (abortController.signal.aborted) return;
-      setChosenStay(stayDecision);
-      setShowStayScene(false);
-
-      // ─── STAGE 3: Activities Scene ───────────────────────────────
-      await activityReadyPromise;
-      if (abortController.signal.aborted) return;
-
-      setActiveStepIndex(3);
-      setShowActivityScene(true);
-      window.scrollTo({ top: 0, behavior: 'smooth' });
-
-      // Wait for traveler activities decision
-      const activityDecision = await new Promise((resolve) => {
-        activityDecisionResolver.current = resolve;
-      });
-      if (abortController.signal.aborted) return;
-      const resolvedActivities = activityDecision || [];
-      setChosenActivities(resolvedActivities);
-      setShowActivityScene(false);
-
-      // ─── STAGE 4: Final Expedition Review & Lock ─────────────────
-      const result = await finalResultReadyPromise;
-      if (abortController.signal.aborted) return;
-      setPendingResult(result);
-
-      setActiveStepIndex(4);
-      setShowReviewScene(true);
-      window.scrollTo({ top: 0, behavior: 'smooth' });
-
-      // Wait for traveler final lock confirmation
-      await new Promise((resolve) => {
-        reviewDecisionResolver.current = resolve;
-      });
-      if (abortController.signal.aborted) return;
-      setShowReviewScene(false);
-
-      // Finalize and save
-      let finalItinerary = result?.itinerary || result;
-      if (transportDecision && transportDecision.id !== finalItinerary?.selected_transport_outbound?.id) {
-        finalItinerary = {
-          ...finalItinerary,
-          selected_transport_outbound: transportDecision,
-        };
-      }
-      if (stayDecision && stayDecision.id !== finalItinerary?.selected_stay?.id) {
-        finalItinerary = {
-          ...finalItinerary,
-          selected_stay: stayDecision,
-        };
-      }
-      if (resolvedActivities && resolvedActivities.length > 0) {
-        finalItinerary = {
-          ...finalItinerary,
-          selected_experiences: resolvedActivities,
-        };
-      }
-
-      updateTrip({
-        itinerary: finalItinerary,
-        prompt: promptToRun,
-        transportOptions: opts,
-        stayOptions: stays,
-      });
-
-      // Navigate to Dashboard Cockpit
-      navigate('/dashboard', { state: { itinerary: finalItinerary } });
-
-    } catch (err) {
-      if (err.name === 'AbortError') return;
-      console.error('Pipeline error:', err);
-      setError(err.message || 'Failed to generate expedition matrix');
-      setIsExecuting(false);
-      hasRun.current = false;
-    }
   }
+
+  const handleFinalizeTrip = () => {
+    let finalItinerary = pendingResult?.itinerary || pendingResult || {};
+    if (chosenTransport && chosenTransport.id !== finalItinerary?.selected_transport_outbound?.id) {
+      finalItinerary = {
+        ...finalItinerary,
+        selected_transport_outbound: chosenTransport,
+      };
+    }
+    if (chosenStay && chosenStay.id !== finalItinerary?.selected_stay?.id) {
+      finalItinerary = {
+        ...finalItinerary,
+        selected_stay: chosenStay,
+      };
+    }
+    if (chosenActivities && chosenActivities.length > 0) {
+      finalItinerary = {
+        ...finalItinerary,
+        selected_experiences: chosenActivities,
+      };
+    }
+
+    updateTrip({
+      itinerary: finalItinerary,
+      prompt: currentPrompt,
+      transportOptions: transportOptions,
+      stayOptions: stayOptions,
+    });
+
+    navigate('/dashboard', { state: { itinerary: finalItinerary } });
+  };
 
   return (
     <div className="min-h-screen bg-[#FAF8FF] text-[#131B2E] flex flex-col antialiased selection:bg-[#C26D38] selection:text-white font-['Geist']">
@@ -1555,30 +1469,47 @@ export default function Planning() {
                 <div className="flex items-center gap-2 overflow-x-auto w-full md:w-auto py-1 no-scrollbar text-xs">
                   
                   {/* Step 1: Intent */}
-                  <div className={`flex items-center gap-1.5 px-3 py-1.5 rounded-xl transition-all ${
-                    activeStepIndex > 0
-                      ? 'bg-emerald-50 text-emerald-800 border border-emerald-200 font-bold'
-                      : 'bg-slate-900 text-white font-bold'
-                  }`}>
+                  <button
+                    type="button"
+                    onClick={handleCancelAndGoBack}
+                    className={`flex items-center gap-1.5 px-3 py-1.5 rounded-xl transition-all cursor-pointer ${
+                      activeStepIndex > 0
+                        ? 'bg-emerald-50 text-emerald-800 border border-emerald-200 font-bold hover:bg-emerald-100'
+                        : 'bg-slate-900 text-white font-bold'
+                    }`}
+                    title="Return to Intent Setup"
+                  >
                     {activeStepIndex > 0 ? (
                       <CheckCircle2 className="w-3.5 h-3.5 text-emerald-600" />
                     ) : (
                       <span className="w-2 h-2 rounded-full bg-amber-400 animate-pulse" />
                     )}
                     <span>1. Intent</span>
-                    <span className="text-[10px] opacity-75">{activeStepIndex > 0 ? 'Locked' : 'Active'}</span>
-                  </div>
+                    <span className="text-[10px] opacity-75">{activeStepIndex > 0 ? 'Edit' : 'Active'}</span>
+                  </button>
 
                   <span className="text-slate-300 font-bold">/</span>
 
                   {/* Step 2: Transport */}
-                  <div className={`flex items-center gap-1.5 px-3 py-1.5 rounded-xl transition-all ${
-                    activeStepIndex === 1
-                      ? 'bg-slate-900 text-white font-bold'
-                      : activeStepIndex > 1
-                      ? 'bg-emerald-50 text-emerald-800 border border-emerald-200 font-bold'
-                      : 'bg-slate-100 text-slate-400 font-medium'
-                  }`}>
+                  <button
+                    type="button"
+                    onClick={() => {
+                      if (transportOptions.length > 0 || activeStepIndex >= 1) {
+                        setActiveStepIndex(1);
+                        window.scrollTo({ top: 0, behavior: 'smooth' });
+                      }
+                    }}
+                    disabled={transportOptions.length === 0 && activeStepIndex < 1}
+                    className={`flex items-center gap-1.5 px-3 py-1.5 rounded-xl transition-all ${
+                      transportOptions.length === 0 && activeStepIndex < 1
+                        ? 'bg-slate-100 text-slate-400 font-medium cursor-not-allowed'
+                        : activeStepIndex === 1
+                        ? 'bg-slate-900 text-white font-bold cursor-pointer'
+                        : activeStepIndex > 1
+                        ? 'bg-emerald-50 text-emerald-800 border border-emerald-200 font-bold cursor-pointer hover:bg-emerald-100'
+                        : 'bg-slate-100 text-slate-600 font-medium cursor-pointer hover:bg-slate-200'
+                    }`}
+                  >
                     {activeStepIndex > 1 ? (
                       <CheckCircle2 className="w-3.5 h-3.5 text-emerald-600" />
                     ) : activeStepIndex === 1 ? (
@@ -1586,18 +1517,30 @@ export default function Planning() {
                     ) : null}
                     <span>2. Transport</span>
                     <span className="text-[10px] opacity-75">{activeStepIndex === 1 ? 'Decision' : activeStepIndex > 1 ? 'Locked' : 'Queued'}</span>
-                  </div>
+                  </button>
 
                   <span className="text-slate-300 font-bold">/</span>
 
                   {/* Step 3: Stay */}
-                  <div className={`flex items-center gap-1.5 px-3 py-1.5 rounded-xl transition-all ${
-                    activeStepIndex === 2
-                      ? 'bg-slate-900 text-white font-bold'
-                      : activeStepIndex > 2
-                      ? 'bg-emerald-50 text-emerald-800 border border-emerald-200 font-bold'
-                      : 'bg-slate-100 text-slate-400 font-medium'
-                  }`}>
+                  <button
+                    type="button"
+                    onClick={() => {
+                      if (stayOptions.length > 0 || activeStepIndex >= 2) {
+                        setActiveStepIndex(2);
+                        window.scrollTo({ top: 0, behavior: 'smooth' });
+                      }
+                    }}
+                    disabled={stayOptions.length === 0 && activeStepIndex < 2}
+                    className={`flex items-center gap-1.5 px-3 py-1.5 rounded-xl transition-all ${
+                      stayOptions.length === 0 && activeStepIndex < 2
+                        ? 'bg-slate-100 text-slate-400 font-medium cursor-not-allowed'
+                        : activeStepIndex === 2
+                        ? 'bg-slate-900 text-white font-bold cursor-pointer'
+                        : activeStepIndex > 2
+                        ? 'bg-emerald-50 text-emerald-800 border border-emerald-200 font-bold cursor-pointer hover:bg-emerald-100'
+                        : 'bg-slate-100 text-slate-600 font-medium cursor-pointer hover:bg-slate-200'
+                    }`}
+                  >
                     {activeStepIndex > 2 ? (
                       <CheckCircle2 className="w-3.5 h-3.5 text-emerald-600" />
                     ) : activeStepIndex === 2 ? (
@@ -1605,18 +1548,30 @@ export default function Planning() {
                     ) : null}
                     <span>3. Stay</span>
                     <span className="text-[10px] opacity-75">{activeStepIndex === 2 ? 'Active' : activeStepIndex > 2 ? 'Locked' : 'Queued'}</span>
-                  </div>
+                  </button>
 
                   <span className="text-slate-300 font-bold">/</span>
 
                   {/* Step 4: Activities */}
-                  <div className={`flex items-center gap-1.5 px-3 py-1.5 rounded-xl transition-all ${
-                    activeStepIndex === 3
-                      ? 'bg-slate-900 text-white font-bold'
-                      : activeStepIndex > 3
-                      ? 'bg-emerald-50 text-emerald-800 border border-emerald-200 font-bold'
-                      : 'bg-slate-100 text-slate-400 font-medium'
-                  }`}>
+                  <button
+                    type="button"
+                    onClick={() => {
+                      if (activitiesData || activeStepIndex >= 3) {
+                        setActiveStepIndex(3);
+                        window.scrollTo({ top: 0, behavior: 'smooth' });
+                      }
+                    }}
+                    disabled={!activitiesData && activeStepIndex < 3}
+                    className={`flex items-center gap-1.5 px-3 py-1.5 rounded-xl transition-all ${
+                      !activitiesData && activeStepIndex < 3
+                        ? 'bg-slate-100 text-slate-400 font-medium cursor-not-allowed'
+                        : activeStepIndex === 3
+                        ? 'bg-slate-900 text-white font-bold cursor-pointer'
+                        : activeStepIndex > 3
+                        ? 'bg-emerald-50 text-emerald-800 border border-emerald-200 font-bold cursor-pointer hover:bg-emerald-100'
+                        : 'bg-slate-100 text-slate-600 font-medium cursor-pointer hover:bg-slate-200'
+                    }`}
+                  >
                     {activeStepIndex > 3 ? (
                       <CheckCircle2 className="w-3.5 h-3.5 text-emerald-600" />
                     ) : activeStepIndex === 3 ? (
@@ -1624,22 +1579,34 @@ export default function Planning() {
                     ) : null}
                     <span>4. Activities</span>
                     <span className="text-[10px] opacity-75">{activeStepIndex === 3 ? 'Active' : activeStepIndex > 3 ? 'Locked' : 'Queued'}</span>
-                  </div>
+                  </button>
 
                   <span className="text-slate-300 font-bold">/</span>
 
                   {/* Step 5: Optimizer */}
-                  <div className={`flex items-center gap-1.5 px-3 py-1.5 rounded-xl transition-all ${
-                    activeStepIndex === 4
-                      ? 'bg-slate-900 text-white font-bold'
-                      : 'bg-slate-100 text-slate-400 font-medium'
-                  }`}>
+                  <button
+                    type="button"
+                    onClick={() => {
+                      if (pendingResult || activeStepIndex >= 4) {
+                        setActiveStepIndex(4);
+                        window.scrollTo({ top: 0, behavior: 'smooth' });
+                      }
+                    }}
+                    disabled={!pendingResult && activeStepIndex < 4}
+                    className={`flex items-center gap-1.5 px-3 py-1.5 rounded-xl transition-all ${
+                      !pendingResult && activeStepIndex < 4
+                        ? 'bg-slate-100 text-slate-400 font-medium cursor-not-allowed'
+                        : activeStepIndex === 4
+                        ? 'bg-slate-900 text-white font-bold cursor-pointer'
+                        : 'bg-emerald-50 text-emerald-800 border border-emerald-200 font-bold cursor-pointer hover:bg-emerald-100'
+                    }`}
+                  >
                     {activeStepIndex === 4 ? (
                       <span className="w-2 h-2 rounded-full bg-amber-400 animate-pulse" />
                     ) : null}
                     <span>5. Optimizer</span>
                     <span className="text-[10px] opacity-75">{activeStepIndex === 4 ? 'Active' : 'Queued'}</span>
-                  </div>
+                  </button>
 
                 </div>
 
@@ -1656,7 +1623,7 @@ export default function Planning() {
             <div className="max-w-[1360px] mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-8">
 
               {/* Stage 02: Transport Selection Scene */}
-              {showTransportScene && (
+              {activeStepIndex === 1 && (
                 <div className="w-full">
                   <TransportSelectionScene
                     options={transportOptions}
@@ -1666,21 +1633,24 @@ export default function Planning() {
                     people={people}
                     days={days}
                     onSelect={(opt) => {
-                      if (transportDecisionResolver.current) {
-                        transportDecisionResolver.current(opt);
-                      }
+                      setChosenTransport(opt);
+                      setActiveStepIndex(2);
+                      window.scrollTo({ top: 0, behavior: 'smooth' });
                     }}
                     onSkip={() => {
-                      if (transportDecisionResolver.current) {
-                        transportDecisionResolver.current(transportOptions[0]);
+                      if (!chosenTransport && transportOptions.length > 0) {
+                        setChosenTransport(transportOptions[0]);
                       }
+                      setActiveStepIndex(2);
+                      window.scrollTo({ top: 0, behavior: 'smooth' });
                     }}
+                    onBack={handleCancelAndGoBack}
                   />
                 </div>
               )}
 
               {/* Stage 03: Stay Selection Scene */}
-              {showStayScene && (
+              {activeStepIndex === 2 && (
                 <div className="w-full">
                   <StaySelectionScene
                     options={stayOptions}
@@ -1689,62 +1659,71 @@ export default function Planning() {
                     people={people}
                     days={days}
                     onSelect={(stay) => {
-                      if (stayDecisionResolver.current) {
-                        stayDecisionResolver.current(stay);
-                      }
+                      setChosenStay(stay);
+                      setActiveStepIndex(3);
+                      window.scrollTo({ top: 0, behavior: 'smooth' });
                     }}
                     onSkip={() => {
-                      if (stayDecisionResolver.current) {
-                        stayDecisionResolver.current(stayOptions[0]);
+                      if (!chosenStay && stayOptions.length > 0) {
+                        setChosenStay(stayOptions[0]);
                       }
+                      setActiveStepIndex(3);
+                      window.scrollTo({ top: 0, behavior: 'smooth' });
+                    }}
+                    onBack={() => {
+                      setActiveStepIndex(1);
+                      window.scrollTo({ top: 0, behavior: 'smooth' });
                     }}
                   />
                 </div>
               )}
 
               {/* Stage 04: Curated Regional Experiences Selection */}
-              {showActivityScene && (
+              {activeStepIndex === 3 && (
                 <div className="w-full">
                   <ActivitySelectionScene
                     activities={activitiesData}
                     destination={destination}
                     days={days}
                     onSelect={(acts) => {
-                      if (activityDecisionResolver.current) {
-                        activityDecisionResolver.current(acts);
-                      }
+                      setChosenActivities(acts);
+                      setActiveStepIndex(4);
+                      window.scrollTo({ top: 0, behavior: 'smooth' });
                     }}
                     onSkip={() => {
-                      if (activityDecisionResolver.current) {
-                        activityDecisionResolver.current([]);
-                      }
+                      setActiveStepIndex(4);
+                      window.scrollTo({ top: 0, behavior: 'smooth' });
+                    }}
+                    onBack={() => {
+                      setActiveStepIndex(2);
+                      window.scrollTo({ top: 0, behavior: 'smooth' });
                     }}
                   />
                 </div>
               )}
 
               {/* Stage 05: Expedition Review & Final Lock */}
-              {showReviewScene && (
+              {activeStepIndex === 4 && (
                 <div className="w-full">
                   <ExpeditionReviewScene
-                    itinerary={pendingResult?.itinerary}
+                    itinerary={pendingResult?.itinerary || pendingResult}
                     selectedTransport={chosenTransport}
                     selectedStay={chosenStay}
                     selectedActivities={chosenActivities}
                     budget={budgetInr}
                     people={people}
                     days={days}
-                    onConfirm={() => {
-                      if (reviewDecisionResolver.current) {
-                        reviewDecisionResolver.current(true);
-                      }
+                    onConfirm={handleFinalizeTrip}
+                    onBack={() => {
+                      setActiveStepIndex(3);
+                      window.scrollTo({ top: 0, behavior: 'smooth' });
                     }}
                   />
                 </div>
               )}
 
               {/* Live Streaming Response & Shimmer Skeletons (Active synthesis state) */}
-              {!showTransportScene && !showStayScene && !showActivityScene && !showReviewScene && (
+              {activeStepIndex === 0 && (
                 <PlanningStreamSkeleton
                   destination={destination || selectedCorridor?.sector || 'Destination'}
                   origin={originCity || 'Delhi'}

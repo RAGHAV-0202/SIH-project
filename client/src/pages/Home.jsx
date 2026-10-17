@@ -20,38 +20,58 @@ import {
   ChevronsUpDown,
 } from 'lucide-react';
 
-const DEMO_DESTINATIONS = [
+const FEATURED_CORRIDORS = [
   {
     id: 'spiti',
     name: 'Spiti Valley',
     state: 'Himachal Pradesh',
-    subtitle: 'High desert monasteries and mountain valleys',
+    tag: 'High-Altitude Cold Desert',
+    subtitle: 'Ancient monasteries, Chandratal Lake & direct mud-brick village homestays',
     days: 5,
-    budget: 30000,
+    budget: 28000,
+    people: 2,
+    badge: 'Altitude Paced',
+    badgeColor: 'bg-emerald-50 text-emerald-800 border-emerald-200',
+    image: 'https://images.unsplash.com/photo-1581793745862-99fde7fa73d2?auto=format&fit=crop&w=800&q=80',
   },
   {
     id: 'coorg',
     name: 'Coorg',
     state: 'Karnataka',
-    subtitle: 'Coffee plantations, misty hills, and spice trails',
+    tag: 'Western Ghats Rainforest',
+    subtitle: 'Misty coffee plantations, spice trails & traditional Kodava family stays',
     days: 4,
     budget: 22000,
+    people: 2,
+    badge: 'Direct Homestays',
+    badgeColor: 'bg-amber-50 text-amber-800 border-amber-200',
+    image: 'https://images.unsplash.com/photo-1596422846543-75c6fc197f07?auto=format&fit=crop&w=800&q=80',
   },
   {
     id: 'meghalaya',
     name: 'Meghalaya',
-    state: 'Northeast India',
-    subtitle: 'Living root bridges, clear rivers, and waterfalls',
+    state: 'Northeast Highlands',
+    tag: 'Living Root Bridges & Waterfalls',
+    subtitle: 'Double decker root bridges, Dawki crystal waters & Khasi river cottages',
     days: 5,
-    budget: 28000,
+    budget: 26000,
+    people: 2,
+    badge: 'Community Led',
+    badgeColor: 'bg-blue-50 text-blue-800 border-blue-200',
+    image: 'https://images.unsplash.com/photo-1626014303757-646e7f8646b9?auto=format&fit=crop&w=800&q=80',
   },
   {
     id: 'udaipur',
     name: 'Udaipur',
     state: 'Rajasthan',
-    subtitle: 'Lake palaces, historic havelis, and artisan bazaars',
-    days: 4,
+    tag: 'Royal Lakes & Heritage Havelis',
+    subtitle: 'Lake Pichola sunset boats, restored havelis & artisan miniature painting',
+    days: 3,
     budget: 24000,
+    people: 2,
+    badge: 'Heritage Preserved',
+    badgeColor: 'bg-orange-50 text-orange-800 border-orange-200',
+    image: 'https://images.unsplash.com/photo-1615836245337-f5b9b2303f10?auto=format&fit=crop&w=800&q=80',
   },
 ];
 
@@ -60,21 +80,14 @@ export default function Home() {
   const { memory } = useMemory();
   const navigate = useNavigate();
 
-  // Interactive quick-plan widget state
-  const [selectedDestId, setSelectedDestId] = useState('spiti');
-  const [selectedDays, setSelectedDays] = useState(5);
-  const [selectedPeople, setSelectedPeople] = useState(2);
-
-  const activeDest = DEMO_DESTINATIONS.find((d) => d.id === selectedDestId) || DEMO_DESTINATIONS[0];
-
-  const handleLaunchPlan = () => {
+  const handleLaunchCorridor = (corridor) => {
     navigate('/planning', {
       state: {
-        destination: activeDest.name,
-        days: selectedDays,
-        people: selectedPeople,
-        budget: activeDest.budget,
-        prompt: `${selectedDays} days in ${activeDest.name} for ${selectedPeople} travelers under ₹${activeDest.budget.toLocaleString('en-IN')}`,
+        destination: corridor.name,
+        days: corridor.days,
+        people: corridor.people,
+        budget: corridor.budget,
+        prompt: `${corridor.days} days in ${corridor.name} for ${corridor.people} travelers under ₹${corridor.budget.toLocaleString('en-IN')}`,
       },
     });
   };
@@ -85,15 +98,24 @@ export default function Home() {
 
       <main className="w-full">
         {/* ========================================================================= */}
-        {/* 1. HERO SECTION & INTERACTIVE QUICK-PLAN WIDGET                           */}
+        {/* 1. HERO SECTION & CORRIDOR PREVIEW SHOWCASE                                */}
         {/* ========================================================================= */}
-        <section className="relative w-full overflow-hidden px-4 sm:px-6 lg:px-8 pt-10 pb-12">
+        <section className="relative w-full overflow-hidden px-4 sm:px-6 lg:px-8 pt-8 pb-14">
           {/* Ambient Glows */}
           <div className="absolute -top-40 right-10 w-96 h-96 rounded-full bg-[#FFDBC9]/30 blur-3xl pointer-events-none" />
           <div className="absolute top-20 left-1/4 w-80 h-80 rounded-full bg-emerald-100/40 blur-3xl pointer-events-none" />
 
           <div className="max-w-7xl mx-auto w-full flex flex-col items-start relative z-10">
-            {/* Asymmetric Headline */}
+            
+            {/* Autonomous Tag Eyebrow */}
+            <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-white/80 border border-slate-200/80 text-xs font-semibold text-slate-800 mb-6 shadow-2xs backdrop-blur-xs">
+              <Sparkles className="w-3.5 h-3.5 text-[#C26D38]" />
+              <span>Multi-Agent Expedition Synthesis</span>
+              <span className="w-1 h-1 rounded-full bg-slate-300" />
+              <span className="text-[#006C4A]">100% Direct Village Dividends</span>
+            </div>
+
+            {/* Asymmetric Headline & Editorial Intro */}
             <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 w-full items-end mb-8">
               <div className="lg:col-span-8 flex flex-col">
                 <h1 className="font-display font-bold text-4xl sm:text-5xl lg:text-6xl text-[#131B2E] tracking-tight leading-[1.1]">
@@ -102,113 +124,121 @@ export default function Home() {
               </div>
               <div className="lg:col-span-4 flex flex-col pb-1">
                 <p className="text-sm sm:text-base text-[#4F5D72] leading-relaxed">
-                  Autonomous trip-planning agent for domestic Indian travel. Instant personalized itineraries across Coorg, Spiti Valley, Meghalaya, and Udaipur.
+                  Autonomous trip-planning agent for domestic Indian travel. Direct community homestays, vetted mountain chauffeurs, and terrain-calibrated pacing across India's most extraordinary corridors.
                 </p>
               </div>
             </div>
 
-            {/* Quick-Plan Widget (Interactive & tied to /planning) */}
-            <div
-              id="destinations"
-              className="w-full bg-white rounded-2xl shadow-xl border border-slate-200/80 p-4 lg:p-6 mb-4 scroll-mt-24"
-            >
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 items-center">
-                {/* Where to */}
-                <div className="flex flex-col bg-[#F2F3FF] rounded-xl p-3.5 border border-slate-200/60 relative">
-                  <div className="flex items-center justify-between text-[#4F5D72] mb-1">
-                    <span className="text-xs font-semibold text-[#4F5D72]">Where to</span>
-                    <MapPin className="w-4 h-4 text-[#C26D38]" />
-                  </div>
-                  <select
-                    value={selectedDestId}
-                    onChange={(e) => {
-                      const dest = DEMO_DESTINATIONS.find((d) => d.id === e.target.value);
-                      if (dest) {
-                        setSelectedDestId(dest.id);
-                        setSelectedDays(dest.days);
-                      }
-                    }}
-                    className="w-full bg-transparent font-display font-bold text-base text-[#131B2E] focus:outline-none cursor-pointer appearance-none pr-6"
-                  >
-                    {DEMO_DESTINATIONS.map((d) => (
-                      <option key={d.id} value={d.id} className="text-[#131B2E] font-sans font-medium">
-                        {d.name}, {d.state}
-                      </option>
-                    ))}
-                  </select>
-                  <ChevronsUpDown className="w-3.5 h-3.5 text-[#4F5D72]/70 absolute right-3.5 bottom-8 pointer-events-none" />
-                  <span className="text-[11px] text-[#4F5D72] mt-0.5 truncate">
-                    {activeDest.subtitle}
-                  </span>
-                </div>
+            {/* Direct Launch Action Strip */}
+            <div className="w-full flex flex-wrap items-center gap-4 mb-10">
+              <button
+                type="button"
+                onClick={() => navigate('/planning')}
+                className="group px-7 py-3.5 rounded-xl bg-[#C26D38] hover:bg-[#A85A2A] text-white font-display font-bold text-base flex items-center gap-3 shadow-md hover:shadow-xl transition-all active:scale-[0.98] cursor-pointer"
+              >
+                <span>Launch Trip Planner</span>
+                <ArrowRight className="w-5 h-5 transition-transform group-hover:translate-x-1" />
+              </button>
+              <a
+                href="#corridors"
+                className="px-6 py-3.5 rounded-xl bg-white hover:bg-slate-50 text-[#131B2E] font-display font-bold text-base border border-slate-200/90 shadow-2xs transition-all flex items-center gap-2 cursor-pointer"
+              >
+                <Compass className="w-4 h-4 text-[#006C4A]" />
+                <span>Explore 4 Corridors</span>
+              </a>
+            </div>
 
-                {/* Dates & Duration */}
-                <div className="flex flex-col bg-[#F2F3FF] rounded-xl p-3.5 border border-slate-200/60 relative">
-                  <div className="flex items-center justify-between text-[#4F5D72] mb-1">
-                    <span className="text-xs font-semibold text-[#4F5D72]">Duration</span>
-                    <Calendar className="w-4 h-4 text-[#4F5D72]" />
-                  </div>
-                  <select
-                    value={selectedDays}
-                    onChange={(e) => setSelectedDays(parseInt(e.target.value, 10))}
-                    className="w-full bg-transparent font-display font-bold text-base text-[#131B2E] focus:outline-none cursor-pointer appearance-none pr-6"
-                  >
-                    <option value={3} className="text-[#131B2E] font-sans font-medium">3 days / 2 nights</option>
-                    <option value={4} className="text-[#131B2E] font-sans font-medium">4 days / 3 nights</option>
-                    <option value={5} className="text-[#131B2E] font-sans font-medium">5 days / 4 nights</option>
-                    <option value={7} className="text-[#131B2E] font-sans font-medium">7 days / 6 nights</option>
-                  </select>
-                  <ChevronsUpDown className="w-3.5 h-3.5 text-[#4F5D72]/70 absolute right-3.5 bottom-8 pointer-events-none" />
-                  <span className="text-[11px] text-[#4F5D72] mt-0.5">
-                    Paced with daily travel buffers
-                  </span>
-                </div>
+            {/* Trust Assurance Strip */}
+            <div className="w-full pt-4 pb-6 border-y border-slate-200/70 flex flex-wrap items-center justify-between gap-y-3 gap-x-6 text-xs text-[#4F5D72] mb-10">
+              <div className="flex items-center gap-2">
+                <ShieldCheck className="w-4 h-4 text-[#006C4A]" />
+                <span>Verified village homestays & vetted mountain chauffeurs</span>
+              </div>
+              <div className="flex items-center gap-2">
+                <Heart className="w-4 h-4 text-[#C26D38]" />
+                <span>Terrain & altitude-calibrated daily rhythms</span>
+              </div>
+              <div className="flex items-center gap-2">
+                <Lock className="w-4 h-4 text-[#006C4A]" />
+                <span>Zero broker markups — direct rates</span>
+              </div>
+            </div>
 
-                {/* Travelers */}
-                <div className="flex flex-col bg-[#F2F3FF] rounded-xl p-3.5 border border-slate-200/60 relative">
-                  <div className="flex items-center justify-between text-[#4F5D72] mb-1">
-                    <span className="text-xs font-semibold text-[#4F5D72]">Travelers</span>
-                    <Users className="w-4 h-4 text-[#4F5D72]" />
-                  </div>
-                  <select
-                    value={selectedPeople}
-                    onChange={(e) => setSelectedPeople(parseInt(e.target.value, 10))}
-                    className="w-full bg-transparent font-display font-bold text-base text-[#131B2E] focus:outline-none cursor-pointer appearance-none pr-6"
-                  >
-                    <option value={1} className="text-[#131B2E] font-sans font-medium">1 traveler (solo)</option>
-                    <option value={2} className="text-[#131B2E] font-sans font-medium">2 travelers (couple / duo)</option>
-                    <option value={4} className="text-[#131B2E] font-sans font-medium">4 travelers (small group)</option>
-                    <option value={6} className="text-[#131B2E] font-sans font-medium">6 travelers (family / friends)</option>
-                  </select>
-                  <ChevronsUpDown className="w-3.5 h-3.5 text-[#4F5D72]/70 absolute right-3.5 bottom-8 pointer-events-none" />
-                  <span className="text-[11px] text-[#006C4A] font-semibold mt-0.5">
-                    Direct local host pricing
+            {/* Featured Corridor Preview Cards Grid */}
+            <div id="corridors" className="w-full scroll-mt-24">
+              <div className="flex items-center justify-between mb-5">
+                <div>
+                  <span className="text-xs font-bold text-[#C26D38] uppercase tracking-wider block mb-1">
+                    Featured Regional Corridors
                   </span>
+                  <h2 className="text-xl sm:text-2xl font-bold font-display text-[#131B2E]">
+                    Select an Expedition Route
+                  </h2>
                 </div>
-
-                {/* CTA Button */}
-                <div className="flex flex-col h-full justify-end">
-                  <button
-                    type="button"
-                    onClick={handleLaunchPlan}
-                    className="group/btn w-full h-full min-h-[60px] rounded-xl bg-[#C26D38] hover:bg-[#A85A2A] text-white font-display font-bold text-base flex items-center justify-center gap-2 shadow-md hover:shadow-lg transition-all active:scale-[0.98] cursor-pointer"
-                  >
-                    <span>Plan my trip</span>
-                    <ArrowRight className="w-5 h-5 transition-transform group-hover/btn:translate-x-1" />
-                  </button>
-                </div>
+                <button
+                  type="button"
+                  onClick={() => navigate('/planning')}
+                  className="hidden sm:inline-flex items-center gap-1.5 text-xs font-bold text-[#006C4A] hover:underline cursor-pointer"
+                >
+                  <span>Or enter custom destination</span>
+                  <ArrowRight className="w-3.5 h-3.5" />
+                </button>
               </div>
 
-              {/* Status Row */}
-              <div className="mt-4 pt-3 border-t border-slate-100 flex flex-wrap items-center justify-between text-xs text-[#4F5D72] gap-2">
-                <div className="flex items-center gap-2">
-                  <ShieldCheck className="w-4 h-4 text-[#006C4A]" />
-                  <span>Verified local homestays, trusted drivers, and calibrated daily pacing.</span>
-                </div>
-                <div className="flex items-center gap-1.5 text-[#006C4A] font-medium">
-                  <Lock className="w-3.5 h-3.5" />
-                  <span>Zero booking markups</span>
-                </div>
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+                {FEATURED_CORRIDORS.map((corridor) => (
+                  <div
+                    key={corridor.id}
+                    onClick={() => handleLaunchCorridor(corridor)}
+                    className="group relative bg-white rounded-2xl border border-slate-200/80 overflow-hidden shadow-xs hover:shadow-xl hover:-translate-y-1 transition-all duration-300 cursor-pointer flex flex-col justify-between"
+                  >
+                    <div>
+                      {/* Image Thumbnail with Overlay */}
+                      <div className="relative h-44 w-full overflow-hidden bg-slate-100">
+                        <img
+                          src={corridor.image}
+                          alt={corridor.name}
+                          className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+                        />
+                        <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent" />
+                        <div className="absolute top-3 left-3">
+                          <span className={`text-[10px] font-bold px-2.5 py-0.5 rounded-full border shadow-2xs backdrop-blur-xs ${corridor.badgeColor}`}>
+                            {corridor.badge}
+                          </span>
+                        </div>
+                        <div className="absolute bottom-3 left-3 right-3 text-white">
+                          <span className="text-[11px] font-medium opacity-85 block">{corridor.state}</span>
+                          <span className="font-display font-bold text-lg leading-tight block">{corridor.name}</span>
+                        </div>
+                      </div>
+
+                      {/* Card Content */}
+                      <div className="p-4">
+                        <span className="text-[10px] font-bold text-[#C26D38] uppercase tracking-wider block mb-1">
+                          {corridor.tag}
+                        </span>
+                        <p className="text-xs text-[#4F5D72] leading-relaxed line-clamp-2">
+                          {corridor.subtitle}
+                        </p>
+                      </div>
+                    </div>
+
+                    {/* Card Footer */}
+                    <div className="p-4 pt-0">
+                      <div className="pt-3 border-t border-slate-100 flex items-center justify-between">
+                        <div className="flex items-center gap-1.5 text-xs text-slate-700 font-semibold">
+                          <Calendar className="w-3.5 h-3.5 text-[#C26D38]" />
+                          <span>{corridor.days}D</span>
+                          <span className="text-slate-300">•</span>
+                          <span>₹{(corridor.budget / 1000).toFixed(0)}k</span>
+                        </div>
+                        <span className="inline-flex items-center gap-1 text-xs font-bold text-[#C26D38] group-hover:translate-x-1 transition-transform">
+                          Plan <ArrowRight className="w-3.5 h-3.5" />
+                        </span>
+                      </div>
+                    </div>
+                  </div>
+                ))}
               </div>
             </div>
 

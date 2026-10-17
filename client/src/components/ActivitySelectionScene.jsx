@@ -223,6 +223,7 @@ export default function ActivitySelectionScene({
   days = 4,
   onSelect,
   onSkip,
+  onBack,
 }) {
   const initialExperiences = formatRawActivities(activities, destination);
   const [customExperiences, setCustomExperiences] = useState([]);
@@ -504,6 +505,16 @@ export default function ActivitySelectionScene({
               </span>
             </div>
             <div className="flex items-center gap-3">
+              {onBack && (
+                <button
+                  type="button"
+                  onClick={onBack}
+                  className="bg-white hover:bg-slate-50 border border-slate-200 active:scale-98 text-slate-700 px-4 sm:px-5 py-3 rounded-xl font-['Geist'] text-xs font-semibold flex items-center gap-1.5 shadow-xs transition-all cursor-pointer"
+                >
+                  <span className="material-symbols-outlined text-[16px]">arrow_back</span>
+                  <span>Back to Homestays</span>
+                </button>
+              )}
               <button
                 type="button"
                 onClick={() => {

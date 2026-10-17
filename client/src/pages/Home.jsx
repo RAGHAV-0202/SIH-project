@@ -93,18 +93,6 @@ export default function Home() {
           <div className="absolute top-20 left-1/4 w-80 h-80 rounded-full bg-emerald-100/40 blur-3xl pointer-events-none" />
 
           <div className="max-w-7xl mx-auto w-full flex flex-col items-start relative z-10">
-            {/* Tag Overline */}
-            <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-white border border-slate-200/80 shadow-2xs mb-5">
-              <span className="w-2 h-2 rounded-full bg-[#006C4A] animate-pulse" />
-              <span className="text-xs font-semibold text-slate-700">
-                Autonomous trip planning
-              </span>
-              <span className="text-slate-300">•</span>
-              <span className="text-xs font-semibold text-[#006C4A]">
-                Smart India Hackathon 2026
-              </span>
-            </div>
-
             {/* Asymmetric Headline */}
             <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 w-full items-end mb-8">
               <div className="lg:col-span-8 flex flex-col">
@@ -687,7 +675,7 @@ export default function Home() {
             <Link to="/planning" className="hover:text-[#131B2E] transition-colors">Trip planner</Link>
             <a href="#destinations" className="hover:text-[#131B2E] transition-colors">Destinations</a>
             <a href="#how-it-works" className="hover:text-[#131B2E] transition-colors">How it works</a>
-            <span className="text-slate-400">Smart India Hackathon 2026</span>
+            <span className="text-slate-400">© 2026 Wandr</span>
           </div>
         </div>
       </footer>
